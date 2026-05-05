@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinnacle SFE Test Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+        textarea { height: 100px; }
+        .radio-group, .checkbox-group { margin: 10px 0; }
+        select { padding: 8px; margin-bottom: 10px; }
+        button[type="submit"] { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>PLM Pinnacle Faculty Evaluation Form</h1>
+    <p>Your objective, honest, and sincere appraisal of the faculty is important. All responses are confidential and will be used for faculty development.</p>
+
+    <form id="pinnacleSFEForm">
+        <div class="form-group">
+            <label for="studentId">Student ID (text input):</label>
+            <input type="text" id="studentId" name="studentId" placeholder="Enter your student ID">
+        </div>
+
+        <div class="form-group">
+            <label for="studentName">Student Name (text input):</label>
+            <input type="text" id="studentName" name="studentName" placeholder="Enter your full name">
+        </div>
+
+        <div class="form-group">
+            <label>The instructor explained concepts clearly (Likert scale):</label>
+            <div class="radio-group">
+                <input type="radio" id="clarity1" name="clarity" value="1 - Strongly Disagree">
+                <label for="clarity1">1 - Strongly Disagree</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="clarity2" name="clarity" value="2 - Disagree">
+                <label for="clarity2">2 - Disagree</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="clarity3" name="clarity" value="3 - Neutral">
+                <label for="clarity3">3 - Neutral</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="clarity4" name="clarity" value="4 - Agree">
+                <label for="clarity4">4 - Agree</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="clarity5" name="clarity" value="5 - Strongly Agree">
+                <label for="clarity5">5 - Strongly Agree</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="clarityNA" name="clarity" value="Not Applicable">
+                <label for="clarityNA">Not Applicable</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>How often did the instructor provide feedback? (frequency):</label>
+            <div class="radio-group">
+                <input type="radio" id="feedback1" name="feedbackFreq" value="1 week">
+                <label for="feedback1">1 week</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="feedback2" name="feedbackFreq" value="2 weeks">
+                <label for="feedback2">2 weeks</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="feedback3" name="feedbackFreq" value="1 month">
+                <label for="feedback3">1 month</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="feedback4" name="feedbackFreq" value="Never">
+                <label for="feedback4">Never</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="feedback5" name="feedbackFreq" value="Not Applicable">
+                <label for="feedback5">Not Applicable</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="courseRating">Overall Course Rating (dropdown):</label>
+            <select id="courseRating" name="courseRating">
+                <option value="">-- Select --</option>
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+                <option value="Not Applicable">Not Applicable</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="facultySelect">Select Faculty (dropdown - no NA):</label>
+            <select id="facultySelect" name="facultySelect">
+                <option value="">-- Select Faculty --</option>
+                <option value="Dr. Smith">Dr. Smith</option>
+                <option value="Prof. Johnson">Prof. Johnson</option>
+                <option value="Ms. Lee">Ms. Lee</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="explainRating">Explain your rating (textarea):</label>
+            <textarea id="explainRating" name="explainRating" placeholder="Explain your rating here"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="additionalComments">Additional Comments (textarea):</label>
+            <textarea id="additionalComments" name="additionalComments" placeholder="Any additional comments"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Topics Covered (checkboxes - optional):</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="topic1" name="topics" value="Lectures">
+                <label for="topic1">Lectures</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="topic2" name="topics" value="Lab Activities">
+                <label for="topic2">Lab Activities</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="topic3" name="topics" value="Group Work">
+                <label for="topic3">Group Work</label>
+            </div>
+        </div>
+
+        <button type="submit">Submit Evaluation</button>
+    </form>
+
+    <script>
+        document.getElementById('pinnacleSFEForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Pinnacle SFE Form submitted successfully!');
+        });
+    </script>
+</body>
+</html>

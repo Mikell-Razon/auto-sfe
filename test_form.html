@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SFE Test Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+        textarea { height: 100px; }
+        .radio-group, .checkbox-group { margin: 10px 0; }
+        select { padding: 8px; margin-bottom: 10px; }
+        button[type="submit"] { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Student Feedback Evaluation - Test Form</h1>
+    <p>Your objective, honest, and sincere appraisal is important. All responses are confidential.</p>
+
+    <form id="sfeForm">
+        <div class="form-group">
+            <label for="studentName">Student Name (text input):</label>
+            <input type="text" id="studentName" name="studentName" placeholder="Enter your name">
+        </div>
+
+        <div class="form-group">
+            <label for="feedback">General Feedback (textarea):</label>
+            <textarea id="feedback" name="feedback" placeholder="Enter your feedback"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Course Difficulty (radio buttons):</label>
+            <div class="radio-group">
+                <input type="radio" id="difficulty1" name="difficulty" value="Very Easy">
+                <label for="difficulty1">Very Easy</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="difficulty2" name="difficulty" value="Moderate">
+                <label for="difficulty2">Moderate</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="difficulty3" name="difficulty" value="Very Difficult">
+                <label for="difficulty3">Very Difficult</label>
+            </div>
+            <div class="radio-group">
+                <input type="radio" id="difficulty4" name="difficulty" value="Not Applicable">
+                <label for="difficulty4">Not Applicable</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Topics Covered (checkboxes - optional):</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="topic1" name="topics" value="Math">
+                <label for="topic1">Math</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="topic2" name="topics" value="Science">
+                <label for="topic2">Science</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="courseRating">Course Rating (dropdown):</label>
+            <select id="courseRating" name="courseRating">
+                <option value="">-- Select --</option>
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Poor">Poor</option>
+                <option value="Not Applicable">Not Applicable</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="comments">Additional Comments (textarea):</label>
+            <textarea id="comments" name="comments" placeholder="Any additional comments"></textarea>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        document.getElementById('sfeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Form submitted successfully!');
+        });
+    </script>
+</body>
+</html>

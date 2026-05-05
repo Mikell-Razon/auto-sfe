@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slow Loading SFE Test Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
+        button[type="submit"] { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Student Feedback Evaluation - Slow Loading Test</h1>
+    <div id="formContainer"></div>
+
+    <script>
+        // Simulate slow loading - add form after 5 seconds
+        setTimeout(() => {
+            const container = document.getElementById('formContainer');
+            container.innerHTML = `
+                <form id="sfeForm">
+                    <div class="form-group">
+                        <label for="studentName">Student Name (text input):</label>
+                        <input type="text" id="studentName" name="studentName">
+                    </div>
+                    <div class="form-group">
+                        <label for="feedback">General Feedback (textarea):</label>
+                        <textarea id="feedback" name="feedback"></textarea>
+                    </div>
+                    <button type="submit">Submit</button>
+                </form>
+            `;
+
+            document.getElementById('sfeForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Slow form submitted successfully!');
+            });
+        }, 5000);
+    </script>
+</body>
+</html>
