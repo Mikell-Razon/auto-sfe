@@ -224,6 +224,21 @@
 
     function getQuestionText(element) {
         if (!element) return '';
+        // 0. Climb ancestors (up to 15 levels) until we reach the smallest container that
+        // holds ONLY this control's group AND contains the PLM item code (e.g. "I-2 *").
+        // Handles nested tables where the nearest <tr> holds only the options.
+        try {
+            const isRadio = element.type === 'radio';
+            const rname = isRadio ? element.getAttribute('name') : null;
+            let cur = element.parentElement;
+            for (let i = 0; i < 15 && cur; i++, cur = cur.parentElement) {
+                const ctrls = Array.from(cur.querySelectorAll('input:not([type="hidden"]):not([type="button"]):not([type="submit"]), textarea, select'));
+                const own = ctrls.every(c => isRadio ? (c.type === 'radio' && c.getAttribute('name') === rname) : c === element);
+                if (!own) break;
+                const txt = (cur.textContent || '').replace(/\s+/g, ' ').trim();
+                if (/\b(I|II|III)-\d+/i.test(txt)) return txt;
+            }
+        } catch (e) { /* fall through */ }
         // 1. Table row ancestor (PLM Pinnacle uses <tr> for each evaluation question)
         const row = element.closest('tr');
         if (row) {

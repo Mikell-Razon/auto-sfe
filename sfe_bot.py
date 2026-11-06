@@ -334,6 +334,30 @@ def get_question_text(driver, element):
     if not element:
         return ""
     try:
+        # 0. Climb to the smallest ancestor holding only this control's group and the PLM item code
+        txt = driver.execute_script("""
+            var el = arguments[0];
+            var isRadio = el.type === 'radio';
+            var rname = isRadio ? el.getAttribute('name') : null;
+            var cur = el.parentElement;
+            for (var i = 0; i < 15 && cur; i++, cur = cur.parentElement) {
+                var ctrls = cur.querySelectorAll('input:not([type="hidden"]):not([type="button"]):not([type="submit"]), textarea, select');
+                var own = true;
+                for (var j = 0; j < ctrls.length; j++) {
+                    var c = ctrls[j];
+                    if (isRadio ? !(c.type === 'radio' && c.getAttribute('name') === rname) : c !== el) { own = false; break; }
+                }
+                if (!own) break;
+                var t = (cur.textContent || '').replace(/\\s+/g, ' ').trim();
+                if (/\\b(I|II|III)-\\d+/i.test(t)) return t;
+            }
+            return '';
+        """, element)
+        if txt:
+            return txt
+    except Exception:
+        pass
+    try:
         # 1. Check table row ancestor (PLM Pinnacle ERP uses <tr> for each question)
         try:
             row = element.find_element(By.XPATH, "./ancestor::tr[1]")
