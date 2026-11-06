@@ -43,6 +43,12 @@ async function testPinnacleForm() {
             throw new Error(`Expected clarity to be 5, got: ${clarityChecked ? clarityChecked.value : 'none'}`);
         }
 
+        const unpreparedChecked = doc.querySelector('input[name="unprepared"]:checked');
+        console.log('Unprepared checked (Great reverse-coded):', unpreparedChecked ? unpreparedChecked.value : 'none');
+        if (!unpreparedChecked || !unpreparedChecked.value.includes('1')) {
+            throw new Error(`Expected unprepared to be 1 (Strongly Disagree) for Great preset, got: ${unpreparedChecked ? unpreparedChecked.value : 'none'}`);
+        }
+
         const feedbackFreq = doc.querySelector('input[name="feedbackFreq"]:checked');
         console.log('FeedbackFreq checked (Great):', feedbackFreq ? feedbackFreq.value : 'none');
         if (!feedbackFreq || !feedbackFreq.value.includes('1 week')) {
@@ -82,6 +88,12 @@ async function testPinnacleForm() {
             throw new Error(`Expected clarity to be 3, got: ${clarityChecked ? clarityChecked.value : 'none'}`);
         }
 
+        const unpreparedChecked = doc.querySelector('input[name="unprepared"]:checked');
+        console.log('Unprepared checked (Neutral reverse-coded):', unpreparedChecked ? unpreparedChecked.value : 'none');
+        if (!unpreparedChecked || (!unpreparedChecked.value.includes('2') && !unpreparedChecked.value.includes('3'))) {
+            throw new Error(`Expected unprepared to be 2 or 3 for Neutral preset, got: ${unpreparedChecked ? unpreparedChecked.value : 'none'}`);
+        }
+
         const feedbackFreq = doc.querySelector('input[name="feedbackFreq"]:checked');
         console.log('FeedbackFreq checked (Neutral):', feedbackFreq ? feedbackFreq.value : 'none');
         if (!feedbackFreq || !feedbackFreq.value.includes('2 weeks')) {
@@ -109,6 +121,12 @@ async function testPinnacleForm() {
             throw new Error(`Expected clarity to be 1, got: ${clarityChecked ? clarityChecked.value : 'none'}`);
         }
 
+        const unpreparedChecked = doc.querySelector('input[name="unprepared"]:checked');
+        console.log('Unprepared checked (Bad reverse-coded):', unpreparedChecked ? unpreparedChecked.value : 'none');
+        if (!unpreparedChecked || !unpreparedChecked.value.includes('5')) {
+            throw new Error(`Expected unprepared to be 5 (Strongly Agree) for Bad preset, got: ${unpreparedChecked ? unpreparedChecked.value : 'none'}`);
+        }
+
         const feedbackFreq = doc.querySelector('input[name="feedbackFreq"]:checked');
         console.log('FeedbackFreq checked (Bad):', feedbackFreq ? feedbackFreq.value : 'none');
         if (!feedbackFreq || (!feedbackFreq.value.includes('Never') && !feedbackFreq.value.includes('1 month'))) {
@@ -134,6 +152,12 @@ async function testPinnacleForm() {
         console.log('Clarity checked (NA):', clarityChecked ? clarityChecked.value : 'none');
         if (!clarityChecked || clarityChecked.value !== 'Not Applicable') {
             throw new Error(`Expected clarity to be 'Not Applicable', got: ${clarityChecked ? clarityChecked.value : 'none'}`);
+        }
+
+        const unpreparedChecked = doc.querySelector('input[name="unprepared"]:checked');
+        console.log('Unprepared checked (NA):', unpreparedChecked ? unpreparedChecked.value : 'none');
+        if (!unpreparedChecked || unpreparedChecked.value !== 'Not Applicable') {
+            throw new Error(`Expected unprepared to be 'Not Applicable', got: ${unpreparedChecked ? unpreparedChecked.value : 'none'}`);
         }
 
         const rating = doc.getElementById('courseRating').value;

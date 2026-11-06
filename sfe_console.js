@@ -222,13 +222,152 @@
         return '';
     }
 
+    function getQuestionText(element) {
+        if (!element) return '';
+        // 1. Table row ancestor (PLM Pinnacle uses <tr> for each evaluation question)
+        const row = element.closest('tr');
+        if (row) {
+            const tds = Array.from(row.querySelectorAll('td'));
+            for (const td of tds) {
+                const txt = td.textContent.trim();
+                if (/\b(I|II|III)-\d+/i.test(txt) || /^\s*\d+\.\s+/i.test(txt)) {
+                    return txt;
+                }
+            }
+            return row.textContent.trim();
+        }
+
+        // 2. Form group / container
+        const container = element.closest('.form-group, .question-row, [role="listitem"], .Qr7Oae, .freebirdFormviewerComponentsQuestionBaseRoot');
+        if (container) {
+            const titleEl = container.querySelector('label, [role="heading"], .title, .questionTitle');
+            if (titleEl && titleEl.textContent) return titleEl.textContent.trim();
+            return container.textContent.trim();
+        }
+
+        return getAssociatedLabelText(element);
+    }
+
+    function isNegativeQuestion(questionText) {
+        if (!questionText) return false;
+        // In PLM Pinnacle, reverse-coded negative questions contain an asterisk after the item code:
+        // e.g. "I-2 *", "I-7 *", "I-10 *", "I-17 *", "I-19 *", "I-23 *", "I-25 *", "I-37 *"
+        if (/\bI-\d+\s*\*/i.test(questionText) || /^\s*\d+\.\s*I-\d+\s*\*/i.test(questionText)) {
+            return true;
+        }
+        if (/\d+\.\s*[^a-zA-Z0-9]*\*/i.test(questionText) || /\*\s*(Attends|Does not|Is not|Give unreasonable)/i.test(questionText)) {
+            return true;
+        }
+        if (/attends class unprepared|does not encourage|does not respect|does not invite|not available for consultation|unreasonable course|does not upload/i.test(questionText)) {
+            return true;
+        }
+        return false;
+    }
+
     function getPresetComment(presetId, contextText) {
-        const preset = PRESETS[presetId] || PRESETS.great;
         if (state.customComment && state.customComment.trim()) {
             return state.customComment.trim();
         }
 
         const lower = (contextText || '').toLowerCase();
+        const preset = PRESETS[presetId] || PRESETS.great;
+
+        // Specific PLM Pinnacle Question Textareas / Text Inputs:
+        // I-41.8: What are the OTHER bases used by the teacher for grading?
+        if (/other bases.*grading|bases used.*grading/i.test(lower)) {
+            return "Class participation, problem sets, and hands-on laboratory exercises.";
+        }
+
+        // I-44: Explain your answer in I-43 (Is the teacher fair in giving grades?)
+        if (/explain.*fair in giving grades|fair in giving grades/i.test(lower)) {
+            if (presetId === 'great') {
+                return "Yes, grading rubrics and criteria are clear, transparent, and strictly followed. Scores are based objectively on performance.";
+            } else if (presetId === 'neutral') {
+                return "Grades are generally fair and based on submitted outputs, though more detailed feedback on scores would be helpful.";
+            } else if (presetId === 'bad') {
+                return "Grading criteria and computation were inconsistent, and rubrics were not clearly communicated.";
+            }
+        }
+
+        // I-46: What are the faculty's strong points? Areas for improvement?
+        if (/strong points|areas for improvement/i.test(lower)) {
+            if (presetId === 'great') {
+                return "Strong points: Clear mastery of topics, engaging lecture delivery, approachable demeanor, and punctual feedback. Areas for improvement: None, keep up the excellent work!";
+            } else if (presetId === 'neutral') {
+                return "Strong points: Covers syllabus topics steadily. Areas for improvement: Provide more interactive activities and faster return of graded quizzes.";
+            } else if (presetId === 'bad') {
+                return "Strong points: Has background knowledge in the subject. Areas for improvement: Lecture pacing, clearer instructions, and better communication with students.";
+            }
+        }
+
+        // I-47: Zoom or MS Teams only
+        if (/zoom or ms teams only|other platforms were used/i.test(lower)) {
+            return "MS Teams only.";
+        }
+
+        // I-48: MS Teams in uploading learning materials
+        if (/ms teams in uploading|8 to 10-minute/i.test(lower)) {
+            return "MS Teams only.";
+        }
+
+        // I-49: Contingency plans for technical problems
+        if (/contingency plan/i.test(lower)) {
+            if (presetId === 'great') {
+                return "Yes, recorded lecture sessions and shared materials asynchronously on MS Teams.";
+            } else if (presetId === 'neutral') {
+                return "Yes, recorded lecture sessions were provided.";
+            } else {
+                return "No specific contingency plan was observed.";
+            }
+        }
+
+        // II-10: Describe the nature of departure(s) from syllabus
+        if (/nature of the departure/i.test(lower)) {
+            if (presetId === 'bad') {
+                return "Several scheduled topics were skipped or rushed near the end of the term.";
+            }
+            return "None. The syllabus was followed strictly and topics were covered on schedule.";
+        }
+
+        // II-11: Do you think departure(s) was/were necessary and benefited class?
+        if (/departure.*necessary.*benefit/i.test(lower)) {
+            return "N/A - Followed the syllabus.";
+        }
+
+        // II-15: What other objectives would you recommend for inclusion?
+        if (/other objectives.*recommend/i.test(lower)) {
+            if (presetId === 'great') {
+                return "None, the current course objectives are comprehensive and relevant.";
+            } else if (presetId === 'neutral') {
+                return "More practical and hands-on laboratory exercises.";
+            } else {
+                return "More realistic course expectations and clear milestone objectives.";
+            }
+        }
+
+        // II-16: In your opinion, how can this course be further improved?
+        if (/course be further improved/i.test(lower)) {
+            if (presetId === 'great') {
+                return "The course is well-designed. Maintain the interactive discussions and practical exercises.";
+            } else if (presetId === 'neutral') {
+                return "Allocate more time for complex topics and provide more sample problems.";
+            } else {
+                return "Provide better lecture pacing, clearer assignment rubrics, and timely feedback.";
+            }
+        }
+
+        // III-10: How would you explain your experience using virtual learning?
+        if (/virtual learning/i.test(lower)) {
+            if (presetId === 'great') {
+                return "Virtual learning was smooth, well-organized, and effective through MS Teams.";
+            } else if (presetId === 'neutral') {
+                return "Virtual learning was adequate and manageable.";
+            } else {
+                return "Challenging due to heavy coursework and pacing difficulties.";
+            }
+        }
+
+        // General fallback
         if (/strength|good|like|positive|best|effective|commend/i.test(lower)) {
             return sample(preset.comments.strengths);
         }
@@ -346,13 +485,13 @@
                     triggerEvents(input);
                     filledCount++;
                 }
-                // Do not overwrite existing user identity with "Not applicable."
+                // Do not overwrite existing user identity
                 return;
             }
 
             // Normal text input
             if (!input.value || input.value === 'Not applicable.') {
-                const labelText = getAssociatedLabelText(input);
+                const labelText = getQuestionText(input);
                 input.value = getPresetComment(presetId, labelText);
                 triggerEvents(input);
                 filledCount++;
@@ -361,7 +500,7 @@
 
         // 2. Textareas
         textareas.forEach(textarea => {
-            const contextText = getAssociatedLabelText(textarea) || textarea.placeholder || textarea.name || '';
+            const contextText = getQuestionText(textarea) || textarea.placeholder || textarea.name || '';
             const comment = getPresetComment(presetId, contextText);
 
             if (textarea.tagName === 'TEXTAREA') {
@@ -421,22 +560,25 @@
     function fillSingleRadioGroup(groupName, radios, preset) {
         if (!radios || radios.length === 0) return false;
 
+        const sampleRadio = radios[0];
+        const qText = getQuestionText(sampleRadio);
+        const qLower = qText.toLowerCase();
+        const isReverse = isNegativeQuestion(qText);
         const descriptors = radios.map(r => getRadioDescriptor(r));
 
-        // 1. If preset is 'na', pick "Not Applicable"
+        // 1. N/A Preset
         if (preset.id === 'na') {
             for (let i = 0; i < radios.length; i++) {
-                if (preset.radioPatterns[0].test(descriptors[i])) {
+                if (/not\s*applicable|n\/?a|none/i.test(descriptors[i])) {
                     selectRadio(radios[i]);
                     return true;
                 }
             }
-            // Fallback: select last option
             selectRadio(radios[radios.length - 1]);
             return true;
         }
 
-        // Filter out "Not Applicable" options when evaluating Great / Neutral / Bad
+        // Filter out "Not Applicable" for evaluation presets
         const validRadios = [];
         const validDescriptors = [];
         for (let i = 0; i < radios.length; i++) {
@@ -445,62 +587,196 @@
                 validDescriptors.push(descriptors[i]);
             }
         }
-
         const candidateRadios = validRadios.length > 0 ? validRadios : radios;
         const candidateDescriptors = validRadios.length > 0 ? validDescriptors : descriptors;
 
-        // 2. Try explicit pattern matching for Great / Neutral / Bad
-        for (const pattern of preset.radioPatterns) {
+        function trySelect(regex) {
             for (let i = 0; i < candidateRadios.length; i++) {
-                if (pattern.test(candidateDescriptors[i])) {
-                    // If natural variation is on for 'great', 15% chance to pick second highest if available
-                    if (preset.id === 'great' && state.naturalVariation && Math.random() < 0.15 && candidateRadios.length > 2) {
-                        const secondIdx = Math.max(0, i - 1);
-                        selectRadio(candidateRadios[secondIdx]);
-                        return true;
-                    }
+                if (regex.test(candidateDescriptors[i])) {
                     selectRadio(candidateRadios[i]);
                     return true;
                 }
             }
+            return false;
         }
 
-        // 3. Try frequency patterns (e.g. Pinnacle "1 week", "2 weeks", "Never")
-        if (preset.frequencyPatterns) {
-            for (const pattern of preset.frequencyPatterns) {
-                for (let i = 0; i < candidateRadios.length; i++) {
-                    if (pattern.test(candidateDescriptors[i])) {
-                        selectRadio(candidateRadios[i]);
-                        return true;
-                    }
+        // --- SPECIAL PLM PINNACLE QUESTIONS ---
+
+        // A. How many times has the teacher been late or missed meetings (I-38, I-39, III-7, III-8)
+        if (/how many times.*(late|missed)|class meetings.*missed|late in synchronous/i.test(qLower)) {
+            if (preset.id === 'great' || preset.id === 'neutral') {
+                if (trySelect(/^0\s*time/i)) return true;
+            } else if (preset.id === 'bad') {
+                if (trySelect(/^(4-5|6)\s*times/i)) return true;
+                if (trySelect(/^(2-3)\s*times/i)) return true;
+            }
+        }
+
+        // B. Teacher generally dismisses the class (I-40)
+        if (/dismisses the class/i.test(qLower)) {
+            if (preset.id === 'great' || preset.id === 'neutral') {
+                if (trySelect(/^on\s*time/i)) return true;
+            } else if (preset.id === 'bad') {
+                if (trySelect(/^too\s*early/i) || trySelect(/^very\s*late/i) || trySelect(/^late/i)) return true;
+            }
+        }
+
+        // C. Yes/No grading bases (I-41.1 to I-41.6, II-8)
+        if (/(recitation|quizzes|midterm|final examination|reports|papers).*bases used|syllabus.*expanded outline/i.test(qLower)) {
+            if (trySelect(/^yes/i)) return true;
+        }
+
+        // D. Uploaded detailed syllabus in MS Teams (I-41.7)
+        if (/uploaded detailed syllabus/i.test(qLower)) {
+            if (preset.id === 'great' || preset.id === 'neutral') {
+                if (trySelect(/^yes/i)) return true;
+            } else {
+                if (trySelect(/^no/i)) return true;
+            }
+        }
+
+        // E. Departures from the syllabus (II-9)
+        if (/departures from the syllabus/i.test(qLower)) {
+            if (preset.id === 'great' || preset.id === 'neutral') {
+                if (trySelect(/^no/i)) return true;
+            } else {
+                if (trySelect(/^yes/i)) return true;
+            }
+        }
+
+        // F. Return speed for assignments/quizzes / feedback frequency (I-42)
+        if (/how soon does the teacher post results|return corrected|feedback|frequency/i.test(qLower)) {
+            if (preset.id === 'great') {
+                if (trySelect(/^1\s*week/i) || trySelect(/^weekly/i)) return true;
+            } else if (preset.id === 'neutral') {
+                if (trySelect(/^2\s*weeks/i) || trySelect(/^bi-?weekly/i)) return true;
+            } else {
+                if (trySelect(/^(more than 1 month|never|1 month)/i)) return true;
+            }
+        }
+
+        // G. Fair in giving grades (I-43)
+        if (/fair in giving grades/i.test(qLower)) {
+            if (preset.id === 'great') {
+                if (trySelect(/^always/i)) return true;
+            } else if (preset.id === 'neutral') {
+                if (trySelect(/^(usually|sometimes)/i)) return true;
+            } else {
+                if (trySelect(/^(rarely|never)/i)) return true;
+            }
+        }
+
+        // H. Rate this teacher among PLM teachers (I-45)
+        if (/rate this teacher/i.test(qLower)) {
+            if (preset.id === 'great') {
+                if (trySelect(/^the\s*best/i) || trySelect(/^among\s*the\s*best/i)) return true;
+            } else if (preset.id === 'neutral') {
+                if (trySelect(/^average/i)) return true;
+            } else {
+                if (trySelect(/^the\s*worst/i) || trySelect(/^among\s*the\s*worst/i)) return true;
+            }
+        }
+
+        // I. Overall pace of the course (II-12)
+        if (/overall pace of the course/i.test(qLower)) {
+            if (preset.id === 'great' || preset.id === 'neutral') {
+                if (trySelect(/^just\s*right/i)) return true;
+            } else {
+                if (trySelect(/^too\s*fast/i) || trySelect(/^too\s*slow/i)) return true;
+            }
+        }
+
+        // J. Learned / Objectives attained / Student self-assessment (II-13, II-14, III-1 to III-6)
+        if (/learned from this course|objectives.*attained|participate in class|learn new ideas|receptive.*new ideas|effort did you give|performed well|expectations.*met/i.test(qLower)) {
+            if (preset.id === 'great') {
+                if (trySelect(/^very\s*much/i)) return true;
+            } else if (preset.id === 'neutral') {
+                if (trySelect(/^much/i) || trySelect(/^moderately/i)) return true;
+            } else {
+                if (/expectations.*met/i.test(qLower)) {
+                    if (trySelect(/^very\s*little/i) || trySelect(/^nothing/i)) return true;
+                } else {
+                    if (trySelect(/^very\s*much/i) || trySelect(/^much/i)) return true;
                 }
             }
         }
 
-        // 4. Positional Likert fallback based on target score (1..5)
+        // K. Final grade for yourself (III-9)
+        if (/final grade would you give yourself/i.test(qLower)) {
+            if (preset.id === 'great') {
+                if (trySelect(/^(1\.25|1\.00|1\.50)/i)) return true;
+            } else if (preset.id === 'neutral') {
+                if (trySelect(/^(1\.75|2\.00)/i)) return true;
+            } else {
+                if (trySelect(/^(2\.25|2\.50|2\.75)/i)) return true;
+            }
+        }
+
+        // --- LIKERT SCALE (AGREE ... DISAGREE) WITH REVERSE ASTERISK HANDLING ---
+        if (isReverse) {
+            // NEGATIVE TRAIT (e.g. "I-2 * Attends class unprepared")
+            if (preset.id === 'great') {
+                // Great professor DOES NOT do this -> Strongly Disagree / Disagree
+                if (state.naturalVariation && Math.random() < 0.15) {
+                    if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
+                }
+                if (trySelect(/^(1(\.0)?(\s*[-–/:]|\s*$)|strongly\s*disagree)/i)) return true;
+                if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
+            } else if (preset.id === 'neutral') {
+                if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
+                if (trySelect(/^(3(\.0)?(\s*[-–/:]|\s*$)|neutral)/i)) return true;
+            } else if (preset.id === 'bad') {
+                // Bad professor DOES do this -> Strongly Agree / Agree
+                if (trySelect(/^(5(\.0)?(\s*[-–/:]|\s*$)|strongly\s*agree)/i)) return true;
+                if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
+            }
+        } else {
+            // POSITIVE STATEMENT (e.g. "I-1 Explains course objectives")
+            if (preset.id === 'great') {
+                if (state.naturalVariation && Math.random() < 0.15) {
+                    if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
+                }
+                if (trySelect(/^(5(\.0)?(\s*[-–/:]|\s*$)|strongly\s*agree)/i)) return true;
+                if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
+            } else if (preset.id === 'neutral') {
+                if (trySelect(/^(3(\.0)?(\s*[-–/:]|\s*$)|neutral)/i)) return true;
+                if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
+            } else if (preset.id === 'bad') {
+                if (trySelect(/^(1(\.0)?(\s*[-–/:]|\s*$)|strongly\s*disagree)/i)) return true;
+                if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
+            }
+        }
+
+        // Fallback: standard preset patterns
+        for (const pattern of preset.radioPatterns) {
+            if (trySelect(pattern)) return true;
+        }
+
+        // Frequency fallback if any candidate matches
+        if (preset.frequencyPatterns) {
+            for (const pattern of preset.frequencyPatterns) {
+                if (trySelect(pattern)) return true;
+            }
+        }
+
+        // Positional fallback
         const total = candidateRadios.length;
         if (total === 1) {
             selectRadio(candidateRadios[0]);
             return true;
         }
 
-        // Determine if scale is 1->5 (ascending) or 5->1 (descending)
         const firstText = candidateDescriptors[0];
         const lastText = candidateDescriptors[total - 1];
-        const isDescending = /^(5|strongly\s*agree|excellent|outstanding)/i.test(firstText) ||
-                             /^(1|strongly\s*disagree|poor)/i.test(lastText);
+        const isDescending = /^(5|strongly\s*agree|excellent|outstanding|always|1\s*week|0\s*time)/i.test(firstText) ||
+                             /^(1|strongly\s*disagree|poor|never|rarely)/i.test(lastText);
 
         let targetIndex = 0;
         if (preset.id === 'great') {
-            targetIndex = isDescending ? 0 : total - 1;
-            // Slight natural variation
-            if (state.naturalVariation && total >= 4 && Math.random() < 0.15) {
-                targetIndex = isDescending ? 1 : total - 2;
-            }
+            targetIndex = isReverse ? (isDescending ? total - 1 : 0) : (isDescending ? 0 : total - 1);
         } else if (preset.id === 'bad') {
-            targetIndex = isDescending ? total - 1 : 0;
+            targetIndex = isReverse ? (isDescending ? 0 : total - 1) : (isDescending ? total - 1 : 0);
         } else {
-            // Neutral: middle option
             targetIndex = Math.floor(total / 2);
         }
 
@@ -636,8 +912,9 @@
             const elements = Array.from(doc.querySelectorAll(selector));
             for (const el of elements) {
                 const text = (el.textContent || el.value || el.getAttribute('aria-label') || '').trim().toLowerCase();
-                if (/^(submit|submit evaluation|next|isumite|send|save evaluation)/i.test(text) ||
-                    (text.includes('submit') && !text.includes('cancel'))) {
+                if (/^(submit|submit evaluation|next|finish|isumite|send|save evaluation)/i.test(text) ||
+                    (text.includes('submit') && !text.includes('cancel')) ||
+                    text === 'finish') {
                     return el;
                 }
             }
@@ -1204,6 +1481,19 @@
             e.preventDefault();
             console.log('[Auto-SFE] Hotkey triggered! Filling form...');
             runAutoSFE(state.currentPreset);
+        }
+    });
+
+    // Auto-fill upon tab switching (e.g. Next -> or tab header buttons in PLM Pinnacle)
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!target) return;
+        const text = (target.value || target.textContent || '').trim().toLowerCase();
+        if (text.includes('next') || text.includes('assessment')) {
+            setTimeout(() => {
+                console.log('[Auto-SFE] Tab change detected. Auto-applying active preset...');
+                runAutoSFE(state.currentPreset);
+            }, 350);
         }
     });
 
