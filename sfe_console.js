@@ -809,12 +809,12 @@
                 gap: 7px;
             }
 
-            /* Terminal Preset Buttons */
+            /* Terminal Preset Buttons with Colored Text & Distinct Highlights */
             .presets-row {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
                 gap: 4px;
-                background: rgba(0, 0, 0, 0.45);
+                background: rgba(0, 0, 0, 0.5);
                 padding: 3px;
                 border-radius: 4px;
                 border: 1px solid rgba(255, 255, 255, 0.06);
@@ -822,43 +822,90 @@
             .preset-pill {
                 padding: 5px 2px;
                 border-radius: 3px;
-                border: 1px solid transparent;
-                background: transparent;
-                color: #94a3b8;
                 font-size: 10px;
-                font-weight: 600;
+                font-weight: 700;
                 font-family: inherit;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 4px;
-                letter-spacing: 0.03em;
+                letter-spacing: 0.04em;
                 text-transform: uppercase;
-                transition: all 0.12s ease;
+                transition: all 0.14s ease;
+                border: 1px solid transparent;
             }
-            .preset-pill:hover {
-                background: rgba(34, 197, 94, 0.08);
-                color: #f1f5f9;
-                border-color: rgba(34, 197, 94, 0.25);
-            }
-            .preset-pill.active {
-                background: rgba(34, 197, 94, 0.15);
+
+            /* Great: Phosphor Green */
+            .preset-pill.great {
                 color: #4ade80;
-                font-weight: 700;
+                background: rgba(34, 197, 94, 0.06);
+                border-color: rgba(34, 197, 94, 0.22);
+            }
+            .preset-pill.great:hover {
+                background: rgba(34, 197, 94, 0.14);
                 border-color: rgba(34, 197, 94, 0.45);
-                box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
+                color: #86efac;
             }
-            .dot {
-                width: 5px;
-                height: 5px;
-                border-radius: 50%;
-                flex-shrink: 0;
+            .preset-pill.great.active {
+                background: rgba(34, 197, 94, 0.24);
+                border-color: #22c55e;
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(34, 197, 94, 0.35);
             }
-            .dot.great { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
-            .dot.neutral { background: #eab308; box-shadow: 0 0 6px #eab308; }
-            .dot.bad { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
-            .dot.na { background: #64748b; }
+
+            /* Neutral: Cyber Amber */
+            .preset-pill.neutral {
+                color: #facc15;
+                background: rgba(234, 179, 8, 0.06);
+                border-color: rgba(234, 179, 8, 0.22);
+            }
+            .preset-pill.neutral:hover {
+                background: rgba(234, 179, 8, 0.14);
+                border-color: rgba(234, 179, 8, 0.45);
+                color: #fde047;
+            }
+            .preset-pill.neutral.active {
+                background: rgba(234, 179, 8, 0.24);
+                border-color: #eab308;
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(234, 179, 8, 0.35);
+            }
+
+            /* Bad: Neon Red */
+            .preset-pill.bad {
+                color: #f87171;
+                background: rgba(239, 68, 68, 0.06);
+                border-color: rgba(239, 68, 68, 0.22);
+            }
+            .preset-pill.bad:hover {
+                background: rgba(239, 68, 68, 0.14);
+                border-color: rgba(239, 68, 68, 0.45);
+                color: #fca5a5;
+            }
+            .preset-pill.bad.active {
+                background: rgba(239, 68, 68, 0.24);
+                border-color: #ef4444;
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+            }
+
+            /* N/A: Cool Slate */
+            .preset-pill.na {
+                color: #94a3b8;
+                background: rgba(148, 163, 184, 0.06);
+                border-color: rgba(148, 163, 184, 0.22);
+            }
+            .preset-pill.na:hover {
+                background: rgba(148, 163, 184, 0.14);
+                border-color: rgba(148, 163, 184, 0.45);
+                color: #cbd5e1;
+            }
+            .preset-pill.na.active {
+                background: rgba(148, 163, 184, 0.24);
+                border-color: #94a3b8;
+                color: #ffffff;
+                box-shadow: 0 0 10px rgba(148, 163, 184, 0.3);
+            }
 
             /* Settings Drawer (CLI flags) */
             .settings-drawer {
@@ -963,24 +1010,12 @@
                 </div>
             </div>
             <div class="body">
-                <!-- Direct 1-Click Preset Action -->
+                <!-- Direct 1-Click Preset Action with Colored Text / Highlights -->
                 <div class="presets-row">
-                    <button class="preset-pill active" data-preset="great" title="1-click: 5/5 (Strongly Agree)">
-                        <span class="dot great"></span>
-                        <span>Great</span>
-                    </button>
-                    <button class="preset-pill" data-preset="neutral" title="1-click: 3/5 (Neutral)">
-                        <span class="dot neutral"></span>
-                        <span>Neutral</span>
-                    </button>
-                    <button class="preset-pill" data-preset="bad" title="1-click: 1/5 (Disagree)">
-                        <span class="dot bad"></span>
-                        <span>Bad</span>
-                    </button>
-                    <button class="preset-pill" data-preset="na" title="1-click: Not Applicable">
-                        <span class="dot na"></span>
-                        <span>N/A</span>
-                    </button>
+                    <button class="preset-pill great active" data-preset="great" title="1-click: 5/5 (Strongly Agree)">Great</button>
+                    <button class="preset-pill neutral" data-preset="neutral" title="1-click: 3/5 (Neutral)">Neutral</button>
+                    <button class="preset-pill bad" data-preset="bad" title="1-click: 1/5 (Disagree)">Bad</button>
+                    <button class="preset-pill na" data-preset="na" title="1-click: Not Applicable">N/A</button>
                 </div>
 
                 <!-- Collapsible Settings (CLI Style) -->
