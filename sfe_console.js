@@ -1609,7 +1609,22 @@
         submit: submitEvaluation,
         state,
         presets: PRESETS,
-        showUI: createFloatingWidget
+        showUI: createFloatingWidget,
+        version: 'v-climb-4214450',
+        debug: function (limit) {
+            const els = findAllFormElements();
+            Object.entries(els.radioGroups).slice(0, limit || 4).forEach(([name, radios]) => {
+                const q = getQuestionText(radios[0]);
+                console.log('--- group', name, '| radios:', radios.length,
+                    '| values:', radios.map(r => r.value).join(','),
+                    '\n question:', JSON.stringify(q.slice(0, 120)),
+                    '\n reverse:', isNegativeQuestion(q),
+                    '| greenIdx:', plmGreatIndex(q, radios.length),
+                    '\n descriptors:', JSON.stringify(radios.map(r => getRadioDescriptor(r).slice(0, 40))),
+                    '\n html:', radios[0].parentElement.outerHTML.slice(0, 400));
+            });
+            return 'version ' + publicAPI.version;
+        }
     };
 
     window.autoSFE = publicAPI;
