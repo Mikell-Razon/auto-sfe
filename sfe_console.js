@@ -739,9 +739,11 @@
                 transition: transform 0.15s ease, width 0.15s ease;
             }
             .card.minimized {
-                width: 145px;
+                width: 140px;
+                cursor: pointer;
             }
-            .card.minimized .body { display: none; }
+            .card.minimized .body,
+            .card.minimized #btnSettings { display: none; }
             .header {
                 display: flex;
                 align-items: center;
@@ -1124,9 +1126,22 @@
             }
         });
 
-        btnMin.addEventListener('click', () => {
-            card.classList.toggle('minimized');
-            btnMin.textContent = card.classList.contains('minimized') ? '□' : '—';
+        function setMinimized(minimized) {
+            card.classList.toggle('minimized', minimized);
+            btnMin.textContent = minimized ? '+' : '—';
+            btnMin.title = minimized ? 'Maximize' : 'Minimize';
+        }
+
+        btnMin.addEventListener('click', (e) => {
+            e.stopPropagation();
+            setMinimized(!card.classList.contains('minimized'));
+        });
+
+        dragHeader.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
+            if (card.classList.contains('minimized')) {
+                setMinimized(false);
+            }
         });
 
         btnClose.addEventListener('click', () => {
