@@ -708,17 +708,17 @@
     }
 
     // =========================================================================
-    // 5. INJECT FLOATING INTERACTIVE UI (SHADOW DOM)
+    // 5. INJECT MINIMAL FLOATING INTERACTIVE UI (SHADOW DOM)
     // =========================================================================
 
     function createFloatingWidget() {
         const host = document.createElement('div');
         host.id = 'auto-sfe-host';
         host.style.position = 'fixed';
-        host.style.top = '20px';
-        host.style.right = '20px';
-        host.style.zIndex = '2147483647'; // Highest possible z-index
-        host.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        host.style.top = '18px';
+        host.style.right = '18px';
+        host.style.zIndex = '2147483647';
+        host.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
 
         const shadow = host.attachShadow({ mode: 'open' });
 
@@ -726,160 +726,187 @@
         style.textContent = `
             * { box-sizing: border-box; margin: 0; padding: 0; }
             .card {
-                width: 320px;
-                background: #111827;
-                color: #f3f4f6;
-                border: 1px solid #374151;
-                border-radius: 14px;
-                box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
-                backdrop-filter: blur(12px);
+                width: 270px;
+                background: rgba(17, 20, 28, 0.92);
+                color: #e2e8f0;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 12px;
+                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.48), 0 0 0 1px rgba(255, 255, 255, 0.04);
+                backdrop-filter: blur(16px);
                 overflow: hidden;
-                transition: transform 0.2s ease, opacity 0.2s ease;
+                user-select: none;
+                transition: transform 0.18s ease, opacity 0.18s ease, width 0.18s ease;
+            }
+            .card.minimized {
+                width: 140px;
             }
             .card.minimized .body { display: none; }
             .header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 10px 14px;
-                background: #1f2937;
-                border-bottom: 1px solid #374151;
+                padding: 7px 10px;
+                background: rgba(255, 255, 255, 0.02);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
                 cursor: grab;
-                user-select: none;
             }
             .header:active { cursor: grabbing; }
-            .title {
-                font-size: 13px;
-                font-weight: 700;
+            .title-group {
                 display: flex;
                 align-items: center;
                 gap: 6px;
-                color: #f9fafb;
+            }
+            .logo { font-size: 12px; }
+            .title {
+                font-size: 11.5px;
+                font-weight: 600;
+                letter-spacing: -0.01em;
+                color: #f1f5f9;
+            }
+            .active-badge {
+                font-size: 9.5px;
+                font-weight: 600;
+                padding: 1px 5px;
+                border-radius: 4px;
+                background: rgba(16, 185, 129, 0.15);
+                color: #34d399;
+                border: 1px solid rgba(16, 185, 129, 0.25);
             }
             .header-controls {
                 display: flex;
-                gap: 6px;
+                align-items: center;
+                gap: 2px;
             }
             .icon-btn {
                 background: transparent;
                 border: none;
-                color: #9ca3af;
+                color: #94a3b8;
                 cursor: pointer;
-                font-size: 14px;
-                padding: 2px 6px;
+                font-size: 11px;
+                padding: 3px 5px;
                 border-radius: 4px;
-            }
-            .icon-btn:hover { background: #374151; color: #fff; }
-            .body { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-            .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; font-weight: 600; margin-bottom: 6px; }
-            .presets-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            .preset-btn {
-                padding: 10px 8px;
-                border-radius: 8px;
-                border: 1px solid #374151;
-                background: #1f2937;
-                color: #e5e7eb;
-                font-size: 12px;
-                font-weight: 600;
-                cursor: pointer;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 4px;
-                transition: all 0.15s ease;
-            }
-            .preset-btn:hover {
-                border-color: #4b5563;
-                background: #283548;
-                transform: translateY(-1px);
-            }
-            .preset-btn.active {
-                border-color: var(--accent);
-                background: rgba(var(--accent-rgb), 0.18);
-                color: #fff;
-                box-shadow: 0 0 0 1px var(--accent);
-            }
-            .preset-btn.great { --accent: #10b981; --accent-rgb: 16, 185, 129; }
-            .preset-btn.neutral { --accent: #f59e0b; --accent-rgb: 245, 158, 11; }
-            .preset-btn.bad { --accent: #ef4444; --accent-rgb: 239, 68, 68; }
-            .preset-btn.na { --accent: #9ca3af; --accent-rgb: 156, 163, 175; }
-
-            .options-row {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-                padding: 8px 10px;
-                background: #1a2230;
-                border-radius: 8px;
-                border: 1px solid #2d3748;
-            }
-            .checkbox-label {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                font-size: 11.5px;
-                color: #d1d5db;
-                cursor: pointer;
+                justify-content: center;
+                transition: all 0.12s ease;
             }
-            .checkbox-label input { accent-color: #3b82f6; cursor: pointer; }
-
-            .action-buttons {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 8px;
-                margin-top: 2px;
+            .icon-btn:hover {
+                background: rgba(255, 255, 255, 0.08);
+                color: #f8fafc;
             }
-            .primary-btn {
+            .body {
                 padding: 10px;
-                background: linear-gradient(135deg, #2563eb, #1d4ed8);
-                border: none;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            /* Minimal Horizontal Preset Segment */
+            .presets-row {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
+                background: rgba(0, 0, 0, 0.25);
+                padding: 3px;
                 border-radius: 8px;
-                color: #fff;
-                font-size: 13px;
-                font-weight: 700;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+            }
+            .preset-pill {
+                padding: 6px 4px;
+                border-radius: 6px;
+                border: 1px solid transparent;
+                background: transparent;
+                color: #94a3b8;
+                font-size: 11px;
+                font-weight: 500;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 6px;
-                transition: all 0.15s ease;
-                box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+                gap: 5px;
+                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
             }
-            .primary-btn:hover {
-                background: linear-gradient(135deg, #1d4ed8, #1e40af);
-                transform: translateY(-1px);
+            .preset-pill:hover {
+                background: rgba(255, 255, 255, 0.05);
+                color: #f1f5f9;
             }
-            .secondary-btn {
-                padding: 8px;
-                background: #374151;
-                border: 1px solid #4b5563;
-                border-radius: 8px;
-                color: #e5e7eb;
-                font-size: 12px;
+            .preset-pill.active {
+                background: rgba(255, 255, 255, 0.09);
+                color: #ffffff;
                 font-weight: 600;
-                cursor: pointer;
-                transition: background 0.15s ease;
+                border-color: rgba(255, 255, 255, 0.12);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             }
-            .secondary-btn:hover { background: #4b5563; }
+            .dot {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                flex-shrink: 0;
+            }
+            .dot.great { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
+            .dot.neutral { background: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
+            .dot.bad { background: #f43f5e; box-shadow: 0 0 6px rgba(244, 63, 94, 0.4); }
+            .dot.na { background: #94a3b8; }
 
-            .status-bar {
-                padding: 8px 10px;
+            /* Settings Drawer (collapsible) */
+            .settings-drawer {
+                display: none;
+                flex-direction: column;
+                gap: 6px;
+                padding: 6px 8px;
+                background: rgba(0, 0, 0, 0.22);
                 border-radius: 6px;
-                font-size: 11px;
-                line-height: 1.4;
-                background: #111827;
-                border: 1px solid #263040;
-                color: #9ca3af;
-                text-align: center;
+                border: 1px solid rgba(255, 255, 255, 0.04);
+                font-size: 10.5px;
             }
-            .status-bar.success {
-                background: rgba(16, 185, 129, 0.15);
-                border-color: rgba(16, 185, 129, 0.3);
-                color: #34d399;
+            .settings-drawer.open { display: flex; }
+            .toggle-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                color: #94a3b8;
+                cursor: pointer;
+            }
+            .toggle-item:hover { color: #cbd5e1; }
+            .toggle-item input { accent-color: #3b82f6; cursor: pointer; }
+
+            /* Compact Footer / Status */
+            .footer {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding-top: 2px;
+            }
+            .status-text {
+                font-size: 10.5px;
+                color: #64748b;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 175px;
+            }
+            .status-text.success { color: #34d399; font-weight: 500; }
+            .status-text.error { color: #f87171; }
+            .submit-btn {
+                padding: 4px 8px;
+                border-radius: 5px;
+                border: 1px solid rgba(255, 255, 255, 0.09);
+                background: rgba(255, 255, 255, 0.05);
+                color: #cbd5e1;
+                font-size: 10.5px;
+                font-weight: 500;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                transition: all 0.12s ease;
+                white-space: nowrap;
+            }
+            .submit-btn:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: #fff;
+                border-color: rgba(255, 255, 255, 0.18);
             }
         `;
 
@@ -888,57 +915,54 @@
 
         card.innerHTML = `
             <div class="header" id="dragHeader">
-                <span class="title">🎓 Auto-SFE • PLM</span>
+                <div class="title-group">
+                    <span class="logo">🎓</span>
+                    <span class="title">Auto-SFE</span>
+                    <span class="active-badge" id="activeBadge">5/5</span>
+                </div>
                 <div class="header-controls">
-                    <button class="icon-btn" id="btnMin" title="Minimize">_</button>
+                    <button class="icon-btn" id="btnSettings" title="Options">⚙</button>
+                    <button class="icon-btn" id="btnMin" title="Minimize">—</button>
                     <button class="icon-btn" id="btnClose" title="Close">✕</button>
                 </div>
             </div>
             <div class="body">
-                <div>
-                    <div class="label">Choose Rating Preset:</div>
-                    <div class="presets-grid">
-                        <button class="preset-btn great active" data-preset="great">
-                            <span>⭐ Great</span>
-                            <small style="font-weight:400; font-size:10px; opacity:0.8;">Strongly Agree (5/5)</small>
-                        </button>
-                        <button class="preset-btn neutral" data-preset="neutral">
-                            <span>😐 Neutral</span>
-                            <small style="font-weight:400; font-size:10px; opacity:0.8;">Satisfactory (3/5)</small>
-                        </button>
-                        <button class="preset-btn bad" data-preset="bad">
-                            <span>👎 Bad</span>
-                            <small style="font-weight:400; font-size:10px; opacity:0.8;">Disagree (1/5)</small>
-                        </button>
-                        <button class="preset-btn na" data-preset="na">
-                            <span>🔄 N/A</span>
-                            <small style="font-weight:400; font-size:10px; opacity:0.8;">Not Applicable</small>
-                        </button>
-                    </div>
+                <!-- Direct 1-Click Preset Action -->
+                <div class="presets-row">
+                    <button class="preset-pill active" data-preset="great" title="Fill: 5/5 (Strongly Agree)">
+                        <span class="dot great"></span>
+                        <span>Great</span>
+                    </button>
+                    <button class="preset-pill" data-preset="neutral" title="Fill: 3/5 (Neutral)">
+                        <span class="dot neutral"></span>
+                        <span>Neutral</span>
+                    </button>
+                    <button class="preset-pill" data-preset="bad" title="Fill: 1/5 (Disagree)">
+                        <span class="dot bad"></span>
+                        <span>Bad</span>
+                    </button>
+                    <button class="preset-pill" data-preset="na" title="Fill: Not Applicable">
+                        <span class="dot na"></span>
+                        <span>N/A</span>
+                    </button>
                 </div>
 
-                <div class="options-row">
-                    <label class="checkbox-label">
+                <!-- Collapsible Settings -->
+                <div class="settings-drawer" id="settingsDrawer">
+                    <label class="toggle-item">
+                        <span>Auto-submit on click</span>
                         <input type="checkbox" id="chkAutoSubmit" ${state.autoSubmit ? 'checked' : ''}>
-                        <span>Auto-submit after filling</span>
                     </label>
-                    <label class="checkbox-label">
+                    <label class="toggle-item">
+                        <span>Natural rating variance</span>
                         <input type="checkbox" id="chkNatural" ${state.naturalVariation ? 'checked' : ''}>
-                        <span>Natural rating variance (organic)</span>
                     </label>
                 </div>
 
-                <div class="action-buttons">
-                    <button class="primary-btn" id="btnFill">
-                        <span>⚡ Fill Form Now</span>
-                    </button>
-                    <button class="secondary-btn" id="btnSubmit">
-                        <span>🚀 Submit Evaluation</span>
-                    </button>
-                </div>
-
-                <div class="status-bar" id="statusBar">
-                    Ready. Select preset and click Fill.
+                <!-- Footer Status & Submit -->
+                <div class="footer">
+                    <span class="status-text" id="statusText">Click a preset to fill</span>
+                    <button class="submit-btn" id="btnSubmit" title="Submit form">Submit ↵</button>
                 </div>
             </div>
         `;
@@ -947,25 +971,62 @@
         shadow.appendChild(card);
         document.body.appendChild(host);
 
-        // UI Event Handlers
-        const presetButtons = card.querySelectorAll('.preset-btn');
-        const statusBar = card.querySelector('#statusBar');
+        // UI Elements
+        const presetButtons = card.querySelectorAll('.preset-pill');
+        const activeBadge = card.querySelector('#activeBadge');
+        const statusText = card.querySelector('#statusText');
+        const btnSettings = card.querySelector('#btnSettings');
+        const settingsDrawer = card.querySelector('#settingsDrawer');
         const chkAutoSubmit = card.querySelector('#chkAutoSubmit');
         const chkNatural = card.querySelector('#chkNatural');
-        const btnFill = card.querySelector('#btnFill');
         const btnSubmit = card.querySelector('#btnSubmit');
         const btnMin = card.querySelector('#btnMin');
         const btnClose = card.querySelector('#btnClose');
         const dragHeader = card.querySelector('#dragHeader');
 
+        const badgeLabels = {
+            great: { text: '5/5', bg: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: 'rgba(16, 185, 129, 0.25)' },
+            neutral: { text: '3/5', bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: 'rgba(245, 158, 11, 0.25)' },
+            bad: { text: '1/5', bg: 'rgba(244, 63, 94, 0.15)', color: '#fb7185', border: 'rgba(244, 63, 94, 0.25)' },
+            na: { text: 'N/A', bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8', border: 'rgba(148, 163, 184, 0.25)' }
+        };
+
+        function updateBadge(presetKey) {
+            const b = badgeLabels[presetKey] || badgeLabels.great;
+            activeBadge.textContent = b.text;
+            activeBadge.style.background = b.bg;
+            activeBadge.style.color = b.color;
+            activeBadge.style.borderColor = b.border;
+        }
+
+        // Direct 1-Click Action: Clicking preset selects AND fills the form instantly
         presetButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
                 presetButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                state.currentPreset = btn.getAttribute('data-preset');
-                statusBar.textContent = `Selected: ${PRESETS[state.currentPreset].name}`;
-                statusBar.className = 'status-bar';
+                const presetKey = btn.getAttribute('data-preset');
+                state.currentPreset = presetKey;
+                updateBadge(presetKey);
+
+                statusText.textContent = `Filling (${presetKey})...`;
+                statusText.className = 'status-text';
+                const startTime = performance.now();
+
+                try {
+                    const res = await runAutoSFE(presetKey);
+                    const duration = ((performance.now() - startTime) / 1000).toFixed(2);
+                    statusText.textContent = `✓ Filled ${res.totalElements} (${presetKey}) in ${duration}s`;
+                    statusText.className = 'status-text success';
+                } catch (err) {
+                    statusText.textContent = `Error: ${err.message}`;
+                    statusText.className = 'status-text error';
+                }
             });
+        });
+
+        btnSettings.addEventListener('click', () => {
+            settingsDrawer.classList.toggle('open');
+            btnSettings.style.color = settingsDrawer.classList.contains('open') ? '#38bdf8' : '#94a3b8';
         });
 
         chkAutoSubmit.addEventListener('change', () => {
@@ -976,40 +1037,26 @@
             state.naturalVariation = chkNatural.checked;
         });
 
-        btnFill.addEventListener('click', async () => {
-            statusBar.textContent = 'Filling form...';
-            const startTime = performance.now();
-            try {
-                const res = await runAutoSFE(state.currentPreset);
-                const duration = ((performance.now() - startTime) / 1000).toFixed(2);
-                statusBar.textContent = `✅ Filled ${res.totalElements} fields (${res.preset}) in ${duration}s!`;
-                statusBar.className = 'status-bar success';
-            } catch (err) {
-                statusBar.textContent = `❌ Error: ${err.message}`;
-                statusBar.className = 'status-bar';
-            }
-        });
-
         btnSubmit.addEventListener('click', async () => {
-            statusBar.textContent = 'Submitting form...';
+            statusText.textContent = 'Submitting...';
             const submitted = await submitEvaluation();
             if (submitted) {
-                statusBar.textContent = '🚀 Submit clicked successfully!';
-                statusBar.className = 'status-bar success';
+                statusText.textContent = '✓ Submitted successfully!';
+                statusText.className = 'status-text success';
             } else {
-                statusBar.textContent = '⚠️ Submit button not detected.';
-                statusBar.className = 'status-bar';
+                statusText.textContent = 'Submit button not found';
+                statusText.className = 'status-text error';
             }
         });
 
         btnMin.addEventListener('click', () => {
             card.classList.toggle('minimized');
-            btnMin.textContent = card.classList.contains('minimized') ? '□' : '_';
+            btnMin.textContent = card.classList.contains('minimized') ? '□' : '—';
         });
 
         btnClose.addEventListener('click', () => {
             host.remove();
-            console.log('[Auto-SFE] Widget closed. You can reopen or run via console: autoSFE.fill("great")');
+            console.log('[Auto-SFE] Widget closed. Re-run or use console: autoSFE.fill("great")');
         });
 
         // Draggable Widget
