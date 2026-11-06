@@ -716,19 +716,30 @@
 
         // --- LIKERT SCALE (AGREE ... DISAGREE) WITH REVERSE ASTERISK HANDLING ---
         function findOptionIndex(type) {
+            // PASS 1: Check explicit words first (never confuse internal value="1" with strongly disagree)
             for (let i = 0; i < candidateRadios.length; i++) {
                 const desc = candidateDescriptors[i].toLowerCase();
                 if (type === 'strongly_agree') {
-                    if (desc.includes('strongly agree') || /(^|\s)5(\.0)?(\s*[-–/:]|\s*$)/.test(desc) || desc.includes('outstanding')) return i;
+                    if (desc.includes('strongly agree') || desc.includes('outstanding') || desc.includes('lubos na sumasang-ayon')) return i;
                 } else if (type === 'agree') {
-                    if ((desc.includes('agree') && !desc.includes('strongly') && !desc.includes('disagree')) || /(^|\s)4(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                    if (desc.includes('agree') && !desc.includes('strongly') && !desc.includes('disagree')) return i;
                 } else if (type === 'neutral') {
-                    if ((/neutral|neither|satisfactory|average|moderate/.test(desc) && !desc.includes('very')) || /(^|\s)3(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                    if (/neutral|neither|satisfactory|average|moderate/.test(desc) && !desc.includes('very')) return i;
                 } else if (type === 'disagree') {
-                    if ((desc.includes('disagree') && !desc.includes('strongly')) || /(^|\s)2(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                    if (desc.includes('disagree') && !desc.includes('strongly')) return i;
                 } else if (type === 'strongly_disagree') {
-                    if (desc.includes('strongly disagree') || /(^|\s)1(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                    if (desc.includes('strongly disagree') || desc.includes('lubos na hindi sumasang-ayon')) return i;
                 }
+            }
+
+            // PASS 2: Pure numeric scales (e.g. 5, 4, 3, 2, 1) when no text words are present
+            for (let i = 0; i < candidateRadios.length; i++) {
+                const desc = candidateDescriptors[i].toLowerCase();
+                if (type === 'strongly_agree' && /(^|\s)5(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                if (type === 'agree' && /(^|\s)4(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                if (type === 'neutral' && /(^|\s)3(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                if (type === 'disagree' && /(^|\s)2(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                if (type === 'strongly_disagree' && /(^|\s)1(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
             }
             return -1;
         }

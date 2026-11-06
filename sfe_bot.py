@@ -778,23 +778,39 @@ def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
 
     # --- LIKERT SCALE (AGREE ... DISAGREE) WITH REVERSE ASTERISK HANDLING ---
     def find_option_index(target_type):
+        # PASS 1: Check explicit words first (never confuse internal value="1" with strongly disagree)
         for idx in candidate_indices:
             desc = descriptors[idx].lower()
             if target_type == "strongly_agree":
-                if "strongly agree" in desc or re.search(r"(^|\s)5(\.0)?(\s*[-–/:]|\s*$)", desc) or "outstanding" in desc:
+                if "strongly agree" in desc or "outstanding" in desc or "lubos na sumasang-ayon" in desc:
                     return idx
             elif target_type == "agree":
-                if ("agree" in desc and "strongly" not in desc and "disagree" not in desc) or re.search(r"(^|\s)4(\.0)?(\s*[-–/:]|\s*$)", desc):
+                if "agree" in desc and "strongly" not in desc and "disagree" not in desc:
                     return idx
             elif target_type == "neutral":
-                if (re.search(r"neutral|neither|satisfactory|average|moderate", desc) and "very" not in desc) or re.search(r"(^|\s)3(\.0)?(\s*[-–/:]|\s*$)", desc):
+                if re.search(r"neutral|neither|satisfactory|average|moderate", desc) and "very" not in desc:
                     return idx
             elif target_type == "disagree":
-                if ("disagree" in desc and "strongly" not in desc) or re.search(r"(^|\s)2(\.0)?(\s*[-–/:]|\s*$)", desc):
+                if "disagree" in desc and "strongly" not in desc:
                     return idx
             elif target_type == "strongly_disagree":
-                if "strongly disagree" in desc or re.search(r"(^|\s)1(\.0)?(\s*[-–/:]|\s*$)", desc):
+                if "strongly disagree" in desc or "lubos na hindi sumasang-ayon" in desc:
                     return idx
+
+        # PASS 2: Pure numeric scales (e.g. 5, 4, 3, 2, 1) when no text words are present
+        for idx in candidate_indices:
+            desc = descriptors[idx].lower()
+            if target_type == "strongly_agree" and re.search(r"(^|\s)5(\.0)?(\s*[-–/:]|\s*$)", desc):
+                return idx
+            elif target_type == "agree" and re.search(r"(^|\s)4(\.0)?(\s*[-–/:]|\s*$)", desc):
+                return idx
+            elif target_type == "neutral" and re.search(r"(^|\s)3(\.0)?(\s*[-–/:]|\s*$)", desc):
+                return idx
+            elif target_type == "disagree" and re.search(r"(^|\s)2(\.0)?(\s*[-–/:]|\s*$)", desc):
+                return idx
+            elif target_type == "strongly_disagree" and re.search(r"(^|\s)1(\.0)?(\s*[-–/:]|\s*$)", desc):
+                return idx
+
         return None
 
     idx_sa = find_option_index("strongly_agree")
