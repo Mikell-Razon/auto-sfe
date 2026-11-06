@@ -708,17 +708,17 @@
     }
 
     // =========================================================================
-    // 5. INJECT MINIMAL FLOATING INTERACTIVE UI (SHADOW DOM)
+    // 5. INJECT HACKER / TERMINAL INTERACTIVE UI (SHADOW DOM)
     // =========================================================================
 
     function createFloatingWidget() {
         const host = document.createElement('div');
         host.id = 'auto-sfe-host';
         host.style.position = 'fixed';
-        host.style.top = '18px';
-        host.style.right = '18px';
+        host.style.top = '16px';
+        host.style.right = '16px';
         host.style.zIndex = '2147483647';
-        host.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif';
+        host.style.fontFamily = "ui-monospace, 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Menlo, Consolas, monospace";
 
         const shadow = host.attachShadow({ mode: 'open' });
 
@@ -726,138 +726,150 @@
         style.textContent = `
             * { box-sizing: border-box; margin: 0; padding: 0; }
             .card {
-                width: 270px;
-                background: rgba(17, 20, 28, 0.92);
+                width: 275px;
+                background: rgba(8, 10, 14, 0.95);
                 color: #e2e8f0;
-                border: 1px solid rgba(255, 255, 255, 0.08);
-                border-radius: 12px;
-                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.48), 0 0 0 1px rgba(255, 255, 255, 0.04);
-                backdrop-filter: blur(16px);
+                border: 1px solid rgba(34, 197, 94, 0.35);
+                border-radius: 6px;
+                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.75), 0 0 12px rgba(34, 197, 94, 0.12);
+                backdrop-filter: blur(14px);
                 overflow: hidden;
                 user-select: none;
-                transition: transform 0.18s ease, opacity 0.18s ease, width 0.18s ease;
+                letter-spacing: -0.01em;
+                transition: transform 0.15s ease, width 0.15s ease;
             }
             .card.minimized {
-                width: 140px;
+                width: 145px;
             }
             .card.minimized .body { display: none; }
             .header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 7px 10px;
-                background: rgba(255, 255, 255, 0.02);
-                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                padding: 6px 9px;
+                background: rgba(34, 197, 94, 0.05);
+                border-bottom: 1px solid rgba(34, 197, 94, 0.2);
                 cursor: grab;
             }
             .header:active { cursor: grabbing; }
             .title-group {
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 5px;
             }
-            .logo { font-size: 12px; }
+            .prompt-symbol {
+                color: #22c55e;
+                font-weight: 700;
+                font-size: 11px;
+                text-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+            }
             .title {
-                font-size: 11.5px;
-                font-weight: 600;
-                letter-spacing: -0.01em;
+                font-size: 11px;
+                font-weight: 700;
                 color: #f1f5f9;
+                letter-spacing: 0.02em;
             }
             .active-badge {
-                font-size: 9.5px;
-                font-weight: 600;
-                padding: 1px 5px;
-                border-radius: 4px;
-                background: rgba(16, 185, 129, 0.15);
-                color: #34d399;
-                border: 1px solid rgba(16, 185, 129, 0.25);
+                font-size: 9px;
+                font-weight: 700;
+                padding: 1px 4px;
+                border-radius: 3px;
+                background: rgba(34, 197, 94, 0.15);
+                color: #4ade80;
+                border: 1px solid rgba(34, 197, 94, 0.35);
             }
             .header-controls {
                 display: flex;
                 align-items: center;
-                gap: 2px;
+                gap: 3px;
             }
             .icon-btn {
                 background: transparent;
-                border: none;
-                color: #94a3b8;
+                border: 1px solid transparent;
+                color: #64748b;
                 cursor: pointer;
-                font-size: 11px;
-                padding: 3px 5px;
-                border-radius: 4px;
+                font-size: 10px;
+                padding: 2px 4px;
+                border-radius: 3px;
+                font-family: inherit;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                transition: all 0.12s ease;
+                transition: all 0.1s ease;
             }
             .icon-btn:hover {
-                background: rgba(255, 255, 255, 0.08);
-                color: #f8fafc;
+                background: rgba(34, 197, 94, 0.12);
+                border-color: rgba(34, 197, 94, 0.3);
+                color: #4ade80;
             }
             .body {
-                padding: 10px;
+                padding: 8px 9px;
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 7px;
             }
 
-            /* Minimal Horizontal Preset Segment */
+            /* Terminal Preset Buttons */
             .presets-row {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
                 gap: 4px;
-                background: rgba(0, 0, 0, 0.25);
+                background: rgba(0, 0, 0, 0.45);
                 padding: 3px;
-                border-radius: 8px;
-                border: 1px solid rgba(255, 255, 255, 0.04);
+                border-radius: 4px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
             }
             .preset-pill {
-                padding: 6px 4px;
-                border-radius: 6px;
+                padding: 5px 2px;
+                border-radius: 3px;
                 border: 1px solid transparent;
                 background: transparent;
                 color: #94a3b8;
-                font-size: 11px;
-                font-weight: 500;
+                font-size: 10px;
+                font-weight: 600;
+                font-family: inherit;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 5px;
-                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                gap: 4px;
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
+                transition: all 0.12s ease;
             }
             .preset-pill:hover {
-                background: rgba(255, 255, 255, 0.05);
+                background: rgba(34, 197, 94, 0.08);
                 color: #f1f5f9;
+                border-color: rgba(34, 197, 94, 0.25);
             }
             .preset-pill.active {
-                background: rgba(255, 255, 255, 0.09);
-                color: #ffffff;
-                font-weight: 600;
-                border-color: rgba(255, 255, 255, 0.12);
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+                background: rgba(34, 197, 94, 0.15);
+                color: #4ade80;
+                font-weight: 700;
+                border-color: rgba(34, 197, 94, 0.45);
+                box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
             }
             .dot {
-                width: 6px;
-                height: 6px;
+                width: 5px;
+                height: 5px;
                 border-radius: 50%;
                 flex-shrink: 0;
             }
-            .dot.great { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.4); }
-            .dot.neutral { background: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.4); }
-            .dot.bad { background: #f43f5e; box-shadow: 0 0 6px rgba(244, 63, 94, 0.4); }
-            .dot.na { background: #94a3b8; }
+            .dot.great { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+            .dot.neutral { background: #eab308; box-shadow: 0 0 6px #eab308; }
+            .dot.bad { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+            .dot.na { background: #64748b; }
 
-            /* Settings Drawer (collapsible) */
+            /* Settings Drawer (CLI flags) */
             .settings-drawer {
                 display: none;
                 flex-direction: column;
-                gap: 6px;
+                gap: 5px;
                 padding: 6px 8px;
-                background: rgba(0, 0, 0, 0.22);
-                border-radius: 6px;
-                border: 1px solid rgba(255, 255, 255, 0.04);
-                font-size: 10.5px;
+                background: rgba(0, 0, 0, 0.45);
+                border-radius: 4px;
+                border: 1px solid rgba(34, 197, 94, 0.18);
+                font-size: 9.5px;
             }
             .settings-drawer.open { display: flex; }
             .toggle-item {
@@ -867,46 +879,70 @@
                 color: #94a3b8;
                 cursor: pointer;
             }
-            .toggle-item:hover { color: #cbd5e1; }
-            .toggle-item input { accent-color: #3b82f6; cursor: pointer; }
+            .toggle-item:hover { color: #4ade80; }
+            .toggle-item input { accent-color: #22c55e; cursor: pointer; }
 
-            /* Compact Footer / Status */
+            /* Footer / Status with Blinking Cursor */
             .footer {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 8px;
-                padding-top: 2px;
+                gap: 6px;
+                padding-top: 1px;
+            }
+            .status-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                max-width: 175px;
+                overflow: hidden;
+            }
+            .status-prompt {
+                color: #22c55e;
+                font-size: 10px;
+                font-weight: 700;
             }
             .status-text {
-                font-size: 10.5px;
+                font-size: 9.5px;
                 color: #64748b;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 175px;
             }
-            .status-text.success { color: #34d399; font-weight: 500; }
+            .status-text.success { color: #4ade80; font-weight: 600; }
             .status-text.error { color: #f87171; }
+            .cursor {
+                display: inline-block;
+                width: 5px;
+                color: #22c55e;
+                animation: blink 1s step-start infinite;
+                font-weight: 700;
+            }
+            @keyframes blink { 50% { opacity: 0; } }
+
             .submit-btn {
-                padding: 4px 8px;
-                border-radius: 5px;
-                border: 1px solid rgba(255, 255, 255, 0.09);
-                background: rgba(255, 255, 255, 0.05);
-                color: #cbd5e1;
-                font-size: 10.5px;
-                font-weight: 500;
+                padding: 3px 7px;
+                border-radius: 3px;
+                border: 1px solid rgba(34, 197, 94, 0.35);
+                background: rgba(34, 197, 94, 0.08);
+                color: #4ade80;
+                font-size: 9.5px;
+                font-weight: 700;
+                font-family: inherit;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 3px;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
                 transition: all 0.12s ease;
                 white-space: nowrap;
             }
             .submit-btn:hover {
-                background: rgba(255, 255, 255, 0.12);
-                color: #fff;
-                border-color: rgba(255, 255, 255, 0.18);
+                background: rgba(34, 197, 94, 0.2);
+                border-color: #22c55e;
+                color: #ffffff;
+                box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
             }
         `;
 
@@ -916,9 +952,9 @@
         card.innerHTML = `
             <div class="header" id="dragHeader">
                 <div class="title-group">
-                    <span class="logo">🎓</span>
-                    <span class="title">Auto-SFE</span>
-                    <span class="active-badge" id="activeBadge">5/5</span>
+                    <span class="prompt-symbol">&gt;_</span>
+                    <span class="title">auto_sfe</span>
+                    <span class="active-badge" id="activeBadge">[5/5]</span>
                 </div>
                 <div class="header-controls">
                     <button class="icon-btn" id="btnSettings" title="Options">⚙</button>
@@ -929,40 +965,44 @@
             <div class="body">
                 <!-- Direct 1-Click Preset Action -->
                 <div class="presets-row">
-                    <button class="preset-pill active" data-preset="great" title="Fill: 5/5 (Strongly Agree)">
+                    <button class="preset-pill active" data-preset="great" title="1-click: 5/5 (Strongly Agree)">
                         <span class="dot great"></span>
                         <span>Great</span>
                     </button>
-                    <button class="preset-pill" data-preset="neutral" title="Fill: 3/5 (Neutral)">
+                    <button class="preset-pill" data-preset="neutral" title="1-click: 3/5 (Neutral)">
                         <span class="dot neutral"></span>
                         <span>Neutral</span>
                     </button>
-                    <button class="preset-pill" data-preset="bad" title="Fill: 1/5 (Disagree)">
+                    <button class="preset-pill" data-preset="bad" title="1-click: 1/5 (Disagree)">
                         <span class="dot bad"></span>
                         <span>Bad</span>
                     </button>
-                    <button class="preset-pill" data-preset="na" title="Fill: Not Applicable">
+                    <button class="preset-pill" data-preset="na" title="1-click: Not Applicable">
                         <span class="dot na"></span>
                         <span>N/A</span>
                     </button>
                 </div>
 
-                <!-- Collapsible Settings -->
+                <!-- Collapsible Settings (CLI Style) -->
                 <div class="settings-drawer" id="settingsDrawer">
                     <label class="toggle-item">
-                        <span>Auto-submit on click</span>
+                        <span>--auto-submit</span>
                         <input type="checkbox" id="chkAutoSubmit" ${state.autoSubmit ? 'checked' : ''}>
                     </label>
                     <label class="toggle-item">
-                        <span>Natural rating variance</span>
+                        <span>--organic-variance</span>
                         <input type="checkbox" id="chkNatural" ${state.naturalVariation ? 'checked' : ''}>
                     </label>
                 </div>
 
-                <!-- Footer Status & Submit -->
+                <!-- Terminal Footer Status & Submit -->
                 <div class="footer">
-                    <span class="status-text" id="statusText">Click a preset to fill</span>
-                    <button class="submit-btn" id="btnSubmit" title="Submit form">Submit ↵</button>
+                    <div class="status-wrapper">
+                        <span class="status-prompt">&gt;</span>
+                        <span class="status-text" id="statusText">ready</span>
+                        <span class="cursor">_</span>
+                    </div>
+                    <button class="submit-btn" id="btnSubmit" title="Execute form submit">EXEC ↵</button>
                 </div>
             </div>
         `;
@@ -985,10 +1025,10 @@
         const dragHeader = card.querySelector('#dragHeader');
 
         const badgeLabels = {
-            great: { text: '5/5', bg: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: 'rgba(16, 185, 129, 0.25)' },
-            neutral: { text: '3/5', bg: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: 'rgba(245, 158, 11, 0.25)' },
-            bad: { text: '1/5', bg: 'rgba(244, 63, 94, 0.15)', color: '#fb7185', border: 'rgba(244, 63, 94, 0.25)' },
-            na: { text: 'N/A', bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8', border: 'rgba(148, 163, 184, 0.25)' }
+            great: { text: '[5/5]', bg: 'rgba(34, 197, 94, 0.15)', color: '#4ade80', border: 'rgba(34, 197, 94, 0.35)' },
+            neutral: { text: '[3/5]', bg: 'rgba(234, 179, 8, 0.15)', color: '#facc15', border: 'rgba(234, 179, 8, 0.35)' },
+            bad: { text: '[1/5]', bg: 'rgba(239, 68, 68, 0.15)', color: '#f87171', border: 'rgba(239, 68, 68, 0.35)' },
+            na: { text: '[N/A]', bg: 'rgba(148, 163, 184, 0.15)', color: '#94a3b8', border: 'rgba(148, 163, 184, 0.35)' }
         };
 
         function updateBadge(presetKey) {
@@ -1008,17 +1048,17 @@
                 state.currentPreset = presetKey;
                 updateBadge(presetKey);
 
-                statusText.textContent = `Filling (${presetKey})...`;
+                statusText.textContent = `exec(${presetKey})...`;
                 statusText.className = 'status-text';
                 const startTime = performance.now();
 
                 try {
                     const res = await runAutoSFE(presetKey);
                     const duration = ((performance.now() - startTime) / 1000).toFixed(2);
-                    statusText.textContent = `✓ Filled ${res.totalElements} (${presetKey}) in ${duration}s`;
+                    statusText.textContent = `done: ${res.totalElements} nodes [${duration}s]`;
                     statusText.className = 'status-text success';
                 } catch (err) {
-                    statusText.textContent = `Error: ${err.message}`;
+                    statusText.textContent = `err: ${err.message}`;
                     statusText.className = 'status-text error';
                 }
             });
@@ -1026,7 +1066,7 @@
 
         btnSettings.addEventListener('click', () => {
             settingsDrawer.classList.toggle('open');
-            btnSettings.style.color = settingsDrawer.classList.contains('open') ? '#38bdf8' : '#94a3b8';
+            btnSettings.style.color = settingsDrawer.classList.contains('open') ? '#4ade80' : '#64748b';
         });
 
         chkAutoSubmit.addEventListener('change', () => {
@@ -1038,13 +1078,13 @@
         });
 
         btnSubmit.addEventListener('click', async () => {
-            statusText.textContent = 'Submitting...';
+            statusText.textContent = 'exec(submit)...';
             const submitted = await submitEvaluation();
             if (submitted) {
-                statusText.textContent = '✓ Submitted successfully!';
+                statusText.textContent = 'submitted ok';
                 statusText.className = 'status-text success';
             } else {
-                statusText.textContent = 'Submit button not found';
+                statusText.textContent = 'submit: not found';
                 statusText.className = 'status-text error';
             }
         });
@@ -1121,16 +1161,16 @@
     createFloatingWidget();
 
     console.log(
-        `%c🎓 Auto-SFE (PLM Faculty Evaluation Assistant) Loaded!\n` +
-        `%c• Interactive Floating Panel opened on page.\n` +
-        `• Console Commands:\n` +
-        `    autoSFE.great()   - Fill with Great (5/5 ⭐) preset\n` +
-        `    autoSFE.neutral() - Fill with Neutral (3/5 😐) preset\n` +
-        `    autoSFE.bad()     - Fill with Bad (1/5 👎) preset\n` +
-        `    autoSFE.na()      - Fill with Not Applicable (🔄) preset\n` +
-        `    autoSFE.submit()  - Submit the form\n` +
-        `• Hotkey: Ctrl+Shift+S (or Cmd+Shift+S) to quick-fill!`,
-        'color: #3b82f6; font-size: 14px; font-weight: bold;',
-        'color: #9ca3af; font-size: 12px;'
+        `%c>_ auto_sfe :: evaluation tool loaded\n` +
+        `%c• Terminal floating overlay active.\n` +
+        `• CLI functions available:\n` +
+        `    autoSFE.great()   - Execute Great (5/5) preset\n` +
+        `    autoSFE.neutral() - Execute Neutral (3/5) preset\n` +
+        `    autoSFE.bad()     - Execute Bad (1/5) preset\n` +
+        `    autoSFE.na()      - Execute N/A preset\n` +
+        `    autoSFE.submit()  - Execute form submit\n` +
+        `• Hotkey: Ctrl+Shift+S (or Cmd+Shift+S)`,
+        'color: #22c55e; font-family: monospace; font-size: 13px; font-weight: bold;',
+        'color: #94a3b8; font-family: monospace; font-size: 11px;'
     );
 })();
