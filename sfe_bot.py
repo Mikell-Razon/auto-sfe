@@ -621,7 +621,7 @@ def fill_text_fields(driver, text_inputs, textareas, preset_key, args):
 def get_radio_descriptor(driver, radio):
     val = radio.get_attribute("value") or radio.get_attribute("data-value") or ""
     label_text = get_element_label_text(driver, radio)
-    return f"{val} {label_text}".strip()
+    return f"{label_text} {val}".strip()
 
 
 def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
@@ -662,161 +662,203 @@ def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
     # A. How many times has the teacher/student been late or missed meetings (I-38, I-39, III-7, III-8)
     if re.search(r"how many times.*(late|missed)|class meetings.*missed|late in synchronous", q_lower):
         if re.search(r"III-[78]|you have been late|class meetings have you missed", q_lower):
-            if try_select(r"^0\s*time"):
+            if try_select(r"\b0\s*time\b"):
                 return True
         elif preset["id"] in ("great", "neutral"):
-            if try_select(r"^0\s*time"):
+            if try_select(r"\b0\s*time\b"):
                 return True
         elif preset["id"] == "bad":
-            if try_select(r"^(4-5|6)\s*times") or try_select(r"^(2-3)\s*times"):
+            if try_select(r"\b(4-5|6)\s*times\b") or try_select(r"\b(2-3)\s*times\b"):
                 return True
 
     # B. Teacher generally dismisses the class (I-40)
     if re.search(r"dismisses the class", q_lower):
         if preset["id"] in ("great", "neutral"):
-            if try_select(r"^on\s*time"):
+            if try_select(r"\bon\s*time\b"):
                 return True
         elif preset["id"] == "bad":
-            if try_select(r"^too\s*early") or try_select(r"^very\s*late") or try_select(r"^late"):
+            if try_select(r"\btoo\s*early\b") or try_select(r"\bvery\s*late\b") or try_select(r"\blate\b"):
                 return True
 
     # C. Yes/No grading bases (I-41.1 to I-41.6, II-8)
     if re.search(r"(recitation|quizzes|midterm|final examination|reports|papers).*bases used|syllabus.*expanded outline", q_lower):
-        if try_select(r"^yes"):
+        if try_select(r"\byes\b"):
             return True
 
     # D. Uploaded detailed syllabus in MS Teams (I-41.7)
     if re.search(r"uploaded detailed syllabus", q_lower):
         if preset["id"] in ("great", "neutral"):
-            if try_select(r"^yes"):
+            if try_select(r"\byes\b"):
                 return True
         else:
-            if try_select(r"^no"):
+            if try_select(r"\bno\b"):
                 return True
 
     # E. Departures from the syllabus (II-9)
     if re.search(r"departures from the syllabus", q_lower):
         if preset["id"] in ("great", "neutral"):
-            if try_select(r"^no"):
+            if try_select(r"\bno\b"):
                 return True
         else:
-            if try_select(r"^yes"):
+            if try_select(r"\byes\b"):
                 return True
 
     # F. Return speed for assignments/quizzes / feedback frequency (I-42)
     if re.search(r"how soon does the teacher post results|return corrected|feedback|frequency", q_lower):
         if preset["id"] == "great":
-            if try_select(r"^1\s*week") or try_select(r"^weekly"):
+            if try_select(r"\b1\s*week\b") or try_select(r"\bweekly\b"):
                 return True
         elif preset["id"] == "neutral":
-            if try_select(r"^2\s*weeks") or try_select(r"^bi-?weekly"):
+            if try_select(r"\b2\s*weeks\b") or try_select(r"\bbi-?weekly\b"):
                 return True
         else:
-            if try_select(r"^(more than 1 month|never|1 month)"):
+            if try_select(r"\b(more than 1 month|never|1 month)\b"):
                 return True
 
     # G. Fair in giving grades (I-43)
     if re.search(r"fair in giving grades", q_lower):
         if preset["id"] == "great":
-            if try_select(r"^always"):
+            if try_select(r"\balways\b"):
                 return True
         elif preset["id"] == "neutral":
-            if try_select(r"^(usually|sometimes)"):
+            if try_select(r"\b(usually|sometimes)\b"):
                 return True
         else:
-            if try_select(r"^(rarely|never)"):
+            if try_select(r"\b(rarely|never)\b"):
                 return True
 
     # H. Rate this teacher among PLM teachers (I-45)
     if re.search(r"rate this teacher", q_lower):
         if preset["id"] == "great":
-            if try_select(r"^the\s*best") or try_select(r"^among\s*the\s*best"):
+            if try_select(r"\b(the\s*best|among\s*the\s*best)\b"):
                 return True
         elif preset["id"] == "neutral":
-            if try_select(r"^average"):
+            if try_select(r"\baverage\b"):
                 return True
         else:
-            if try_select(r"^the\s*worst") or try_select(r"^among\s*the\s*worst"):
+            if try_select(r"\b(the\s*worst|among\s*the\s*worst)\b"):
                 return True
 
     # I. Overall pace of the course (II-12)
     if re.search(r"overall pace of the course", q_lower):
         if preset["id"] in ("great", "neutral"):
-            if try_select(r"^just\s*right"):
+            if try_select(r"\bjust\s*right\b"):
                 return True
         else:
-            if try_select(r"^too\s*fast") or try_select(r"^too\s*slow"):
+            if try_select(r"\b(too\s*fast|too\s*slow)\b"):
                 return True
 
     # J. Learned / Objectives attained / Student self-assessment (II-13, II-14, III-1 to III-6)
     if re.search(r"learned from this course|objectives.*attained|participate in class|learn new ideas|receptive.*new ideas|effort did you give|performed well|expectations.*met", q_lower):
         if preset["id"] == "great":
-            if try_select(r"^very\s*much"):
+            if try_select(r"\bvery\s*much\b"):
                 return True
         elif preset["id"] == "neutral":
-            if try_select(r"^much") or try_select(r"^moderately"):
+            if try_select(r"\bmuch\b") or try_select(r"\bmoderately\b"):
                 return True
         else:
             if re.search(r"expectations.*met", q_lower):
-                if try_select(r"^very\s*little") or try_select(r"^nothing"):
+                if try_select(r"\b(very\s*little|nothing)\b"):
                     return True
             else:
-                if try_select(r"^very\s*much") or try_select(r"^much"):
+                if try_select(r"\bvery\s*much\b") or try_select(r"\bmuch\b"):
                     return True
 
     # K. Final grade for yourself (III-9)
     if re.search(r"final grade would you give yourself", q_lower):
         if preset["id"] == "great":
-            if try_select(r"^(1\.25|1\.00|1\.50)"):
+            if try_select(r"\b(1\.25|1\.00|1\.50)\b"):
                 return True
         elif preset["id"] == "neutral":
-            if try_select(r"^(1\.75|2\.00)"):
+            if try_select(r"\b(1\.75|2\.00)\b"):
                 return True
         else:
-            if try_select(r"^(2\.25|2\.50|2\.75)"):
+            if try_select(r"\b(2\.25|2\.50|2\.75)\b"):
                 return True
 
     # --- LIKERT SCALE (AGREE ... DISAGREE) WITH REVERSE ASTERISK HANDLING ---
-    if is_reverse:
-        # Negative question (e.g. "I-2 * Attends class unprepared")
-        if preset["id"] == "great":
-            if randomize and random.random() < 0.15:
-                if try_select(r"^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)"):
+    def find_option_index(target_type):
+        for idx in candidate_indices:
+            desc = descriptors[idx].lower()
+            if target_type == "strongly_agree":
+                if "strongly agree" in desc or re.search(r"(^|\s)5(\.0)?(\s*[-–/:]|\s*$)", desc) or "outstanding" in desc:
+                    return idx
+            elif target_type == "agree":
+                if ("agree" in desc and "strongly" not in desc and "disagree" not in desc) or re.search(r"(^|\s)4(\.0)?(\s*[-–/:]|\s*$)", desc):
+                    return idx
+            elif target_type == "neutral":
+                if (re.search(r"neutral|neither|satisfactory|average|moderate", desc) and "very" not in desc) or re.search(r"(^|\s)3(\.0)?(\s*[-–/:]|\s*$)", desc):
+                    return idx
+            elif target_type == "disagree":
+                if ("disagree" in desc and "strongly" not in desc) or re.search(r"(^|\s)2(\.0)?(\s*[-–/:]|\s*$)", desc):
+                    return idx
+            elif target_type == "strongly_disagree":
+                if "strongly disagree" in desc or re.search(r"(^|\s)1(\.0)?(\s*[-–/:]|\s*$)", desc):
+                    return idx
+        return None
+
+    idx_sa = find_option_index("strongly_agree")
+    idx_a  = find_option_index("agree")
+    idx_n  = find_option_index("neutral")
+    idx_d  = find_option_index("disagree")
+    idx_sd = find_option_index("strongly_disagree")
+
+    is_likert = (idx_sa is not None or idx_a is not None) and (idx_sd is not None or idx_d is not None)
+
+    if is_likert:
+        if is_reverse:
+            # Negative question (e.g. "I-2 * Attends class unprepared")
+            if preset["id"] == "great":
+                if randomize and random.random() < 0.15 and idx_d is not None:
+                    safe_click(driver, radios[idx_d])
                     return True
-            if try_select(r"^(1(\.0)?(\s*[-–/:]|\s*$)|strongly\s*disagree)"):
-                return True
-            if try_select(r"^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)"):
-                return True
-        elif preset["id"] == "neutral":
-            if try_select(r"^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)"):
-                return True
-            if try_select(r"^(3(\.0)?(\s*[-–/:]|\s*$)|neutral)"):
-                return True
-        elif preset["id"] == "bad":
-            if try_select(r"^(5(\.0)?(\s*[-–/:]|\s*$)|strongly\s*agree)"):
-                return True
-            if try_select(r"^(4(\.0)?(\s*[-–/:]|\s*$)|agree)"):
-                return True
-    else:
-        # Positive question (e.g. "I-1 Explains course objectives")
-        if preset["id"] == "great":
-            if randomize and random.random() < 0.15:
-                if try_select(r"^(4(\.0)?(\s*[-–/:]|\s*$)|agree)"):
+                if idx_sd is not None:
+                    safe_click(driver, radios[idx_sd])
                     return True
-            if try_select(r"^(5(\.0)?(\s*[-–/:]|\s*$)|strongly\s*agree)"):
-                return True
-            if try_select(r"^(4(\.0)?(\s*[-–/:]|\s*$)|agree)"):
-                return True
-        elif preset["id"] == "neutral":
-            if try_select(r"^(3(\.0)?(\s*[-–/:]|\s*$)|neutral)"):
-                return True
-            if try_select(r"^(4(\.0)?(\s*[-–/:]|\s*$)|agree)"):
-                return True
-        elif preset["id"] == "bad":
-            if try_select(r"^(1(\.0)?(\s*[-–/:]|\s*$)|strongly\s*disagree)"):
-                return True
-            if try_select(r"^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)"):
-                return True
+                if idx_d is not None:
+                    safe_click(driver, radios[idx_d])
+                    return True
+            elif preset["id"] == "neutral":
+                if idx_d is not None:
+                    safe_click(driver, radios[idx_d])
+                    return True
+                if idx_n is not None:
+                    safe_click(driver, radios[idx_n])
+                    return True
+            elif preset["id"] == "bad":
+                if idx_sa is not None:
+                    safe_click(driver, radios[idx_sa])
+                    return True
+                if idx_a is not None:
+                    safe_click(driver, radios[idx_a])
+                    return True
+        else:
+            # Positive question (e.g. "I-1 Explains course objectives")
+            if preset["id"] == "great":
+                if randomize and random.random() < 0.15 and idx_a is not None:
+                    safe_click(driver, radios[idx_a])
+                    return True
+                if idx_sa is not None:
+                    safe_click(driver, radios[idx_sa])
+                    return True
+                if idx_a is not None:
+                    safe_click(driver, radios[idx_a])
+                    return True
+            elif preset["id"] == "neutral":
+                if idx_n is not None:
+                    safe_click(driver, radios[idx_n])
+                    return True
+                if idx_a is not None:
+                    safe_click(driver, radios[idx_a])
+                    return True
+            elif preset["id"] == "bad":
+                if idx_sd is not None:
+                    safe_click(driver, radios[idx_sd])
+                    return True
+                if idx_d is not None:
+                    safe_click(driver, radios[idx_d])
+                    return True
+        return True
 
     # Fallback to standard preset patterns
     for pattern in preset["radio_patterns"]:
@@ -839,11 +881,20 @@ def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
         safe_click(driver, radios[candidate_indices[0]])
         return True
 
-    first_text = descriptors[candidate_indices[0]]
-    last_text = descriptors[candidate_indices[-1]]
+    first_text = descriptors[candidate_indices[0]].lower()
+    last_text = descriptors[candidate_indices[-1]].lower()
     is_descending = bool(
-        re.search(r"^(5|strongly\s*agree|excellent|outstanding|always|1\s*week|0\s*time)", first_text, re.IGNORECASE)
-        or re.search(r"^(1|strongly\s*disagree|poor|never|rarely)", last_text, re.IGNORECASE)
+        "strongly agree" in first_text
+        or "excellent" in first_text
+        or "always" in first_text
+        or "0 time" in first_text
+        or "1 week" in first_text
+        or "strongly disagree" in last_text
+        or "poor" in last_text
+        or "never" in last_text
+        or "rarely" in last_text
+        or re.search(r"^(5|strongly)", first_text)
+        or re.search(r"^(1|poor|never)", last_text)
     )
 
     if preset["id"] == "great":

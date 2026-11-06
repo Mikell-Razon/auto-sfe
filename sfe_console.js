@@ -519,7 +519,7 @@
     }
 
     function getRadioDescriptor(radio) {
-        let value = radio.value || radio.getAttribute('data-value') || radio.getAttribute('value') || '';
+        let value = (radio.value || radio.getAttribute('data-value') || '').trim();
         let labelText = '';
 
         if (radio.id) {
@@ -534,8 +534,8 @@
             labelText = radio.parentElement.textContent.trim();
         }
 
-        const ariaLabel = radio.getAttribute('aria-label') || '';
-        return `${value} ${labelText} ${ariaLabel}`.trim();
+        const ariaLabel = (radio.getAttribute('aria-label') || '').trim();
+        return `${labelText} ${value} ${ariaLabel}`.trim();
     }
 
     function selectRadio(radio) {
@@ -604,99 +604,101 @@
 
         // A. How many times has the teacher been late or missed meetings (I-38, I-39, III-7, III-8)
         if (/how many times.*(late|missed)|class meetings.*missed|late in synchronous/i.test(qLower)) {
-            if (preset.id === 'great' || preset.id === 'neutral') {
-                if (trySelect(/^0\s*time/i)) return true;
+            if (/III-[78]|you have been late|class meetings have you missed/i.test(qLower)) {
+                if (trySelect(/\b0\s*time\b/i)) return true;
+            } else if (preset.id === 'great' || preset.id === 'neutral') {
+                if (trySelect(/\b0\s*time\b/i)) return true;
             } else if (preset.id === 'bad') {
-                if (trySelect(/^(4-5|6)\s*times/i)) return true;
-                if (trySelect(/^(2-3)\s*times/i)) return true;
+                if (trySelect(/\b(4-5|6)\s*times\b/i)) return true;
+                if (trySelect(/\b(2-3)\s*times\b/i)) return true;
             }
         }
 
         // B. Teacher generally dismisses the class (I-40)
         if (/dismisses the class/i.test(qLower)) {
             if (preset.id === 'great' || preset.id === 'neutral') {
-                if (trySelect(/^on\s*time/i)) return true;
+                if (trySelect(/\bon\s*time\b/i)) return true;
             } else if (preset.id === 'bad') {
-                if (trySelect(/^too\s*early/i) || trySelect(/^very\s*late/i) || trySelect(/^late/i)) return true;
+                if (trySelect(/\btoo\s*early\b/i) || trySelect(/\bvery\s*late\b/i) || trySelect(/\blate\b/i)) return true;
             }
         }
 
         // C. Yes/No grading bases (I-41.1 to I-41.6, II-8)
         if (/(recitation|quizzes|midterm|final examination|reports|papers).*bases used|syllabus.*expanded outline/i.test(qLower)) {
-            if (trySelect(/^yes/i)) return true;
+            if (trySelect(/\byes\b/i)) return true;
         }
 
         // D. Uploaded detailed syllabus in MS Teams (I-41.7)
         if (/uploaded detailed syllabus/i.test(qLower)) {
             if (preset.id === 'great' || preset.id === 'neutral') {
-                if (trySelect(/^yes/i)) return true;
+                if (trySelect(/\byes\b/i)) return true;
             } else {
-                if (trySelect(/^no/i)) return true;
+                if (trySelect(/\bno\b/i)) return true;
             }
         }
 
         // E. Departures from the syllabus (II-9)
         if (/departures from the syllabus/i.test(qLower)) {
             if (preset.id === 'great' || preset.id === 'neutral') {
-                if (trySelect(/^no/i)) return true;
+                if (trySelect(/\bno\b/i)) return true;
             } else {
-                if (trySelect(/^yes/i)) return true;
+                if (trySelect(/\byes\b/i)) return true;
             }
         }
 
         // F. Return speed for assignments/quizzes / feedback frequency (I-42)
         if (/how soon does the teacher post results|return corrected|feedback|frequency/i.test(qLower)) {
             if (preset.id === 'great') {
-                if (trySelect(/^1\s*week/i) || trySelect(/^weekly/i)) return true;
+                if (trySelect(/\b1\s*week\b/i) || trySelect(/\bweekly\b/i)) return true;
             } else if (preset.id === 'neutral') {
-                if (trySelect(/^2\s*weeks/i) || trySelect(/^bi-?weekly/i)) return true;
+                if (trySelect(/\b2\s*weeks\b/i) || trySelect(/\bbi-?weekly\b/i)) return true;
             } else {
-                if (trySelect(/^(more than 1 month|never|1 month)/i)) return true;
+                if (trySelect(/\b(more than 1 month|never|1 month)\b/i)) return true;
             }
         }
 
         // G. Fair in giving grades (I-43)
         if (/fair in giving grades/i.test(qLower)) {
             if (preset.id === 'great') {
-                if (trySelect(/^always/i)) return true;
+                if (trySelect(/\balways\b/i)) return true;
             } else if (preset.id === 'neutral') {
-                if (trySelect(/^(usually|sometimes)/i)) return true;
+                if (trySelect(/\b(usually|sometimes)\b/i)) return true;
             } else {
-                if (trySelect(/^(rarely|never)/i)) return true;
+                if (trySelect(/\b(rarely|never)\b/i)) return true;
             }
         }
 
         // H. Rate this teacher among PLM teachers (I-45)
         if (/rate this teacher/i.test(qLower)) {
             if (preset.id === 'great') {
-                if (trySelect(/^the\s*best/i) || trySelect(/^among\s*the\s*best/i)) return true;
+                if (trySelect(/\bthe\s*best\b/i) || trySelect(/\bamong\s*the\s*best\b/i)) return true;
             } else if (preset.id === 'neutral') {
-                if (trySelect(/^average/i)) return true;
+                if (trySelect(/\baverage\b/i)) return true;
             } else {
-                if (trySelect(/^the\s*worst/i) || trySelect(/^among\s*the\s*worst/i)) return true;
+                if (trySelect(/\bthe\s*worst\b/i) || trySelect(/\bamong\s*the\s*worst\b/i)) return true;
             }
         }
 
         // I. Overall pace of the course (II-12)
         if (/overall pace of the course/i.test(qLower)) {
             if (preset.id === 'great' || preset.id === 'neutral') {
-                if (trySelect(/^just\s*right/i)) return true;
+                if (trySelect(/\bjust\s*right\b/i)) return true;
             } else {
-                if (trySelect(/^too\s*fast/i) || trySelect(/^too\s*slow/i)) return true;
+                if (trySelect(/\btoo\s*fast\b/i) || trySelect(/\btoo\s*slow\b/i)) return true;
             }
         }
 
         // J. Learned / Objectives attained / Student self-assessment (II-13, II-14, III-1 to III-6)
         if (/learned from this course|objectives.*attained|participate in class|learn new ideas|receptive.*new ideas|effort did you give|performed well|expectations.*met/i.test(qLower)) {
             if (preset.id === 'great') {
-                if (trySelect(/^very\s*much/i)) return true;
+                if (trySelect(/\bvery\s*much\b/i)) return true;
             } else if (preset.id === 'neutral') {
-                if (trySelect(/^much/i) || trySelect(/^moderately/i)) return true;
+                if (trySelect(/\bmuch\b/i) || trySelect(/\bmoderately\b/i)) return true;
             } else {
                 if (/expectations.*met/i.test(qLower)) {
-                    if (trySelect(/^very\s*little/i) || trySelect(/^nothing/i)) return true;
+                    if (trySelect(/\bvery\s*little\b/i) || trySelect(/\bnothing\b/i)) return true;
                 } else {
-                    if (trySelect(/^very\s*much/i) || trySelect(/^much/i)) return true;
+                    if (trySelect(/\bvery\s*much\b/i) || trySelect(/\bmuch\b/i)) return true;
                 }
             }
         }
@@ -704,47 +706,78 @@
         // K. Final grade for yourself (III-9)
         if (/final grade would you give yourself/i.test(qLower)) {
             if (preset.id === 'great') {
-                if (trySelect(/^(1\.25|1\.00|1\.50)/i)) return true;
+                if (trySelect(/\b(1\.25|1\.00|1\.50)\b/i)) return true;
             } else if (preset.id === 'neutral') {
-                if (trySelect(/^(1\.75|2\.00)/i)) return true;
+                if (trySelect(/\b(1\.75|2\.00)\b/i)) return true;
             } else {
-                if (trySelect(/^(2\.25|2\.50|2\.75)/i)) return true;
+                if (trySelect(/\b(2\.25|2\.50|2\.75)\b/i)) return true;
             }
         }
 
         // --- LIKERT SCALE (AGREE ... DISAGREE) WITH REVERSE ASTERISK HANDLING ---
-        if (isReverse) {
-            // NEGATIVE TRAIT (e.g. "I-2 * Attends class unprepared")
-            if (preset.id === 'great') {
-                // Great professor DOES NOT do this -> Strongly Disagree / Disagree
-                if (state.naturalVariation && Math.random() < 0.15) {
-                    if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
+        function findOptionIndex(type) {
+            for (let i = 0; i < candidateRadios.length; i++) {
+                const desc = candidateDescriptors[i].toLowerCase();
+                if (type === 'strongly_agree') {
+                    if (desc.includes('strongly agree') || /(^|\s)5(\.0)?(\s*[-–/:]|\s*$)/.test(desc) || desc.includes('outstanding')) return i;
+                } else if (type === 'agree') {
+                    if ((desc.includes('agree') && !desc.includes('strongly') && !desc.includes('disagree')) || /(^|\s)4(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                } else if (type === 'neutral') {
+                    if ((/neutral|neither|satisfactory|average|moderate/.test(desc) && !desc.includes('very')) || /(^|\s)3(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                } else if (type === 'disagree') {
+                    if ((desc.includes('disagree') && !desc.includes('strongly')) || /(^|\s)2(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
+                } else if (type === 'strongly_disagree') {
+                    if (desc.includes('strongly disagree') || /(^|\s)1(\.0)?(\s*[-–/:]|\s*$)/.test(desc)) return i;
                 }
-                if (trySelect(/^(1(\.0)?(\s*[-–/:]|\s*$)|strongly\s*disagree)/i)) return true;
-                if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
-            } else if (preset.id === 'neutral') {
-                if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
-                if (trySelect(/^(3(\.0)?(\s*[-–/:]|\s*$)|neutral)/i)) return true;
-            } else if (preset.id === 'bad') {
-                // Bad professor DOES do this -> Strongly Agree / Agree
-                if (trySelect(/^(5(\.0)?(\s*[-–/:]|\s*$)|strongly\s*agree)/i)) return true;
-                if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
             }
-        } else {
-            // POSITIVE STATEMENT (e.g. "I-1 Explains course objectives")
-            if (preset.id === 'great') {
-                if (state.naturalVariation && Math.random() < 0.15) {
-                    if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
+            return -1;
+        }
+
+        const idxSA = findOptionIndex('strongly_agree');
+        const idxA  = findOptionIndex('agree');
+        const idxN  = findOptionIndex('neutral');
+        const idxD  = findOptionIndex('disagree');
+        const idxSD = findOptionIndex('strongly_disagree');
+
+        const isLikert = (idxSA !== -1 || idxA !== -1) && (idxSD !== -1 || idxD !== -1);
+
+        if (isLikert) {
+            if (isReverse) {
+                // NEGATIVE TRAIT (e.g. "I-2 * Attends class unprepared")
+                if (preset.id === 'great') {
+                    // Great professor DOES NOT do this -> Strongly Disagree / Disagree
+                    if (state.naturalVariation && Math.random() < 0.15 && idxD !== -1) {
+                        selectRadio(candidateRadios[idxD]);
+                        return true;
+                    }
+                    if (idxSD !== -1) { selectRadio(candidateRadios[idxSD]); return true; }
+                    if (idxD !== -1) { selectRadio(candidateRadios[idxD]); return true; }
+                } else if (preset.id === 'neutral') {
+                    if (idxD !== -1) { selectRadio(candidateRadios[idxD]); return true; }
+                    if (idxN !== -1) { selectRadio(candidateRadios[idxN]); return true; }
+                } else if (preset.id === 'bad') {
+                    // Bad professor DOES do this -> Strongly Agree / Agree
+                    if (idxSA !== -1) { selectRadio(candidateRadios[idxSA]); return true; }
+                    if (idxA !== -1) { selectRadio(candidateRadios[idxA]); return true; }
                 }
-                if (trySelect(/^(5(\.0)?(\s*[-–/:]|\s*$)|strongly\s*agree)/i)) return true;
-                if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
-            } else if (preset.id === 'neutral') {
-                if (trySelect(/^(3(\.0)?(\s*[-–/:]|\s*$)|neutral)/i)) return true;
-                if (trySelect(/^(4(\.0)?(\s*[-–/:]|\s*$)|agree)/i)) return true;
-            } else if (preset.id === 'bad') {
-                if (trySelect(/^(1(\.0)?(\s*[-–/:]|\s*$)|strongly\s*disagree)/i)) return true;
-                if (trySelect(/^(2(\.0)?(\s*[-–/:]|\s*$)|disagree)/i)) return true;
+            } else {
+                // POSITIVE STATEMENT (e.g. "I-1 Explains course objectives")
+                if (preset.id === 'great') {
+                    if (state.naturalVariation && Math.random() < 0.15 && idxA !== -1) {
+                        selectRadio(candidateRadios[idxA]);
+                        return true;
+                    }
+                    if (idxSA !== -1) { selectRadio(candidateRadios[idxSA]); return true; }
+                    if (idxA !== -1) { selectRadio(candidateRadios[idxA]); return true; }
+                } else if (preset.id === 'neutral') {
+                    if (idxN !== -1) { selectRadio(candidateRadios[idxN]); return true; }
+                    if (idxA !== -1) { selectRadio(candidateRadios[idxA]); return true; }
+                } else if (preset.id === 'bad') {
+                    if (idxSD !== -1) { selectRadio(candidateRadios[idxSD]); return true; }
+                    if (idxD !== -1) { selectRadio(candidateRadios[idxD]); return true; }
+                }
             }
+            return true;
         }
 
         // Fallback: standard preset patterns
@@ -766,10 +799,11 @@
             return true;
         }
 
-        const firstText = candidateDescriptors[0];
-        const lastText = candidateDescriptors[total - 1];
-        const isDescending = /^(5|strongly\s*agree|excellent|outstanding|always|1\s*week|0\s*time)/i.test(firstText) ||
-                             /^(1|strongly\s*disagree|poor|never|rarely)/i.test(lastText);
+        const firstText = candidateDescriptors[0].toLowerCase();
+        const lastText = candidateDescriptors[total - 1].toLowerCase();
+        const isDescending = firstText.includes('strongly agree') || firstText.includes('excellent') || firstText.includes('always') || firstText.includes('0 time') || firstText.includes('1 week') ||
+                             lastText.includes('strongly disagree') || lastText.includes('poor') || lastText.includes('never') || lastText.includes('rarely') ||
+                             /^(5|strongly)/i.test(firstText) || /^(1|poor|never)/i.test(lastText);
 
         let targetIndex = 0;
         if (preset.id === 'great') {
