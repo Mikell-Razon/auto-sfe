@@ -228,12 +228,21 @@
         const row = element.closest('tr');
         if (row) {
             const tds = Array.from(row.querySelectorAll('td'));
+            // Check for explicit PLM question code: I-1, II-2, III-3, etc.
             for (const td of tds) {
                 const txt = td.textContent.trim();
-                if (/\b(I|II|III)-\d+/i.test(txt) || /^\s*\d+\.\s+/i.test(txt)) {
+                if (/\b(I|II|III)-\d+/i.test(txt)) {
                     return txt;
                 }
             }
+            // Check for numbered item with descriptive text: e.g. "1. Explains..."
+            for (const td of tds) {
+                const txt = td.textContent.trim();
+                if (/^\s*\d+\.\s+[a-zA-Z]/i.test(txt)) {
+                    return txt;
+                }
+            }
+            // Return full row text if no individual td matched
             return row.textContent.trim();
         }
 
@@ -522,6 +531,7 @@
         let value = (radio.value || radio.getAttribute('data-value') || '').trim();
         let labelText = '';
 
+        // 1. Explicit <label for="id">
         if (radio.id) {
             const doc = radio.ownerDocument || document;
             const labelEl = doc.querySelector(`label[for="${radio.id}"]`);
@@ -530,6 +540,37 @@
             }
         }
 
+        // 2. Wrapped inside <label>
+        if (!labelText && radio.closest) {
+            const parentLabel = radio.closest('label');
+            if (parentLabel && parentLabel.textContent) {
+                labelText = parentLabel.textContent.trim();
+            }
+        }
+
+        // 3. Next sibling text nodes (e.g. <input type="radio"> Option Text)
+        if (!labelText && radio.parentElement) {
+            let parts = [];
+            let curr = radio.nextSibling;
+            while (curr && (!curr.tagName || curr.tagName.toUpperCase() !== 'INPUT')) {
+                if (curr.textContent) parts.push(curr.textContent);
+                curr = curr.nextSibling;
+            }
+            const sibText = parts.join(' ').trim();
+            if (sibText) {
+                labelText = sibText;
+            }
+        }
+
+        // 4. Single-child parent fallback
+        if (!labelText && radio.parentElement) {
+            const siblingInputs = radio.parentElement.querySelectorAll('input');
+            if (siblingInputs.length <= 1) {
+                labelText = radio.parentElement.textContent.trim();
+            }
+        }
+
+        // 5. General parent fallback
         if (!labelText && radio.parentElement) {
             labelText = radio.parentElement.textContent.trim();
         }
@@ -756,11 +797,7 @@
             if (isReverse) {
                 // NEGATIVE TRAIT (e.g. "I-2 * Attends class unprepared")
                 if (preset.id === 'great') {
-                    // Great professor DOES NOT do this -> Strongly Disagree / Disagree
-                    if (state.naturalVariation && Math.random() < 0.15 && idxD !== -1) {
-                        selectRadio(candidateRadios[idxD]);
-                        return true;
-                    }
+                    // Great professor DOES NOT do this -> Always Strongly Disagree
                     if (idxSD !== -1) { selectRadio(candidateRadios[idxSD]); return true; }
                     if (idxD !== -1) { selectRadio(candidateRadios[idxD]); return true; }
                 } else if (preset.id === 'neutral') {

@@ -341,7 +341,11 @@ def get_question_text(driver, element):
                 tds = row.find_elements(By.TAG_NAME, "td")
                 for td in tds:
                     txt = td.text.strip()
-                    if re.search(r"\b(I|II|III)-\d+", txt, re.IGNORECASE) or re.match(r"^\s*\d+\.\s+", txt):
+                    if re.search(r"\b(I|II|III)-\d+", txt, re.IGNORECASE):
+                        return txt
+                for td in tds:
+                    txt = td.text.strip()
+                    if re.match(r"^\s*\d+\.\s+[a-zA-Z]", txt):
                         return txt
                 row_text = row.text.strip()
                 if row_text:
@@ -619,9 +623,35 @@ def fill_text_fields(driver, text_inputs, textareas, preset_key, args):
 
 
 def get_radio_descriptor(driver, radio):
-    val = radio.get_attribute("value") or radio.get_attribute("data-value") or ""
-    label_text = get_element_label_text(driver, radio)
-    return f"{label_text} {val}".strip()
+    try:
+        val = radio.get_attribute("value") or radio.get_attribute("data-value") or ""
+        label_text = driver.execute_script("""
+            var r = arguments[0];
+            if (r.id) {
+                var l = document.querySelector('label[for="' + r.id + '"]');
+                if (l && l.textContent.trim()) return l.textContent.trim();
+            }
+            var pl = r.closest('label');
+            if (pl && pl.textContent.trim()) return pl.textContent.trim();
+            var curr = r.nextSibling;
+            var parts = [];
+            while (curr && (!curr.tagName || curr.tagName.toUpperCase() !== 'INPUT')) {
+                if (curr.textContent) parts.push(curr.textContent);
+                curr = curr.nextSibling;
+            }
+            var s = parts.join(' ').trim();
+            if (s) return s;
+            if (r.parentElement && r.parentElement.querySelectorAll('input').length <= 1) {
+                return r.parentElement.textContent.trim();
+            }
+            return r.parentElement ? r.parentElement.textContent.trim() : '';
+        """, radio)
+        aria_label = radio.get_attribute("aria-label") or ""
+        return f"{label_text} {val} {aria_label}".strip()
+    except Exception:
+        val = radio.get_attribute("value") or ""
+        label_text = get_element_label_text(driver, radio)
+        return f"{label_text} {val}".strip()
 
 
 def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
@@ -825,9 +855,7 @@ def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
         if is_reverse:
             # Negative question (e.g. "I-2 * Attends class unprepared")
             if preset["id"] == "great":
-                if randomize and random.random() < 0.15 and idx_d is not None:
-                    safe_click(driver, radios[idx_d])
-                    return True
+                # Great professor DOES NOT do this -> Always Strongly Disagree
                 if idx_sd is not None:
                     safe_click(driver, radios[idx_sd])
                     return True
