@@ -654,6 +654,44 @@ def get_radio_descriptor(driver, radio):
         return f"{label_text} {val}".strip()
 
 
+def plm_great_index(q_text, n, randomize=True):
+    """Index of the best answer using PLM's fixed option order; -1 if unknown."""
+    m = re.search(r"\b(I{1,3})-(\d+(?:\.\d+)?)", q_text or "", re.IGNORECASE)
+    if not m:
+        return -1
+    sec = m.group(1).upper()
+    num = float(m.group(2))
+    reverse = is_negative_question(q_text)
+    idx = -1
+    vary = randomize and random.random() < 0.15
+    if sec == "I":
+        if num <= 37:
+            if n < 4:
+                return -1
+            idx = 3 if reverse else (1 if vary else 0)
+        elif num in (38, 39, 42, 43, 45):
+            idx = 0
+        elif num == 40:
+            idx = 1
+        elif 41 <= num < 42:
+            idx = 0
+    elif sec == "II":
+        if num <= 7:
+            if n < 4:
+                return -1
+            idx = 3 if reverse else (1 if vary else 0)
+        elif num in (8, 13, 14):
+            idx = 0
+        elif num == 9:
+            idx = 1
+        elif num == 12:
+            idx = 2
+    elif sec == "III":
+        if num <= 9:
+            idx = 0
+    return idx if 0 <= idx < n else -1
+
+
 def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
     if not radios:
         return False
@@ -672,6 +710,13 @@ def fill_single_radio_group(driver, group_name, radios, preset, randomize=True):
                 return True
         safe_click(driver, radios[-1])
         return True
+
+    # GREAT preset on PLM forms: fixed option order (like the original positional bot)
+    if preset["id"] == "great" and not re.search(r"disagree|poor|never|worst", radios[0].get_attribute("value") or "", re.IGNORECASE):
+        pos = plm_great_index(q_text, len(radios), randomize)
+        if pos != -1:
+            safe_click(driver, radios[pos])
+            return True
 
     # Filter out "Not Applicable" for evaluation presets
     valid_indices = [

@@ -598,6 +598,39 @@
         }
     }
 
+    // Fixed PLM option order -> index of the best answer. Returns -1 if unknown.
+    function plmGreatIndex(qText, n) {
+        const m = /\b(I{1,3})-(\d+(?:\.\d+)?)/i.exec(qText || '');
+        if (!m) return -1;
+        const sec = m[1].toUpperCase();
+        const num = parseFloat(m[2]);
+        const reverse = isNegativeQuestion(qText);
+        let idx = -1;
+        if (sec === 'I') {
+            if (num <= 37) {
+                if (n < 4) return -1;
+                if (reverse) idx = 3;
+                else idx = (state.naturalVariation && Math.random() < 0.15) ? 1 : 0;
+            } else if (num === 38 || num === 39) idx = 0;
+            else if (num === 40) idx = 1;           // On Time
+            else if (num >= 41 && num < 42) idx = /41\.8/.test(m[0]) ? -1 : 0; // Yes
+            else if (num === 42 || num === 43 || num === 45) idx = 0;
+        } else if (sec === 'II') {
+            if (num <= 7) {
+                if (n < 4) return -1;
+                idx = reverse ? 3 : ((state.naturalVariation && Math.random() < 0.15) ? 1 : 0);
+            } else if (num === 8) idx = 0;           // syllabus exists: Yes
+            else if (num === 9) idx = 1;             // departures: No
+            else if (num === 12) idx = 2;            // Just Right
+            else if (num === 13 || num === 14) idx = 0;
+        } else if (sec === 'III') {
+            if (num <= 6) idx = 0;
+            else if (num === 7 || num === 8) idx = 0;
+            else if (num === 9) idx = 0;
+        }
+        return (idx >= 0 && idx < n) ? idx : -1;
+    }
+
     function fillSingleRadioGroup(groupName, radios, preset) {
         if (!radios || radios.length === 0) return false;
 
@@ -617,6 +650,16 @@
             }
             selectRadio(radios[radios.length - 1]);
             return true;
+        }
+
+        // 1b. GREAT preset on PLM forms: use fixed option order (same as the original
+        // positional bot) so label parsing quirks can never flip an answer negative.
+        if (preset.id === 'great' && !/disagree|poor|never|worst/i.test(radios[0].value || '')) {
+            const pos = plmGreatIndex(qText, radios.length);
+            if (pos !== -1) {
+                selectRadio(radios[pos]);
+                return true;
+            }
         }
 
         // Filter out "Not Applicable" for evaluation presets
